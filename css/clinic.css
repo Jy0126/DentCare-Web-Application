@@ -1,0 +1,914 @@
+/* ===========================================================================
+   DentCare — X-ray files, in-system messaging, and the visit-done dialog
+   ---------------------------------------------------------------------------
+   Added 2026-08-29 with the clinic's revision round.
+
+   Prefixes used here: xray-, chat-, visit-done. All three were checked
+   against every other stylesheet before being written — every sheet loads on
+   every page, so a class name is global whether or not it was meant to be.
+
+   No token is redefined. Colours, spacing and radii come from base.css.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Visit saved — the dialog that offers the printout
+   --------------------------------------------------------------------------- */
+
+.visit-done__lead {
+    margin: 0 0 var(--space-s);
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.visit-done__list {
+    margin: 0 0 var(--space-s);
+    padding-left: 18px;
+}
+
+.visit-done__list li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.visit-done__hint {
+    margin: 0;
+    padding: 9px 11px;
+    background-color: var(--bg-subtle);
+    border: 1px solid color-mix(in srgb, var(--color-teal) 30%, transparent);
+    border-radius: var(--radius-s);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   X-ray and scanned files
+   --------------------------------------------------------------------------- */
+
+.xray-drop {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    text-align: center;
+    background-color: var(--bg-subtle);
+    transition: border-color var(--transition-clean),
+                background-color var(--transition-clean);
+}
+
+.xray-drop--over {
+    border-color: var(--color-teal);
+    background-color: var(--color-teal-light);
+}
+
+.xray-drop__hint {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Shown when the project has no Storage bucket, so the reason the upload does
+   nothing stays on the screen instead of fading with a toast. */
+/* ── Locked x-ray panel (uploads off, 2026-09-17) ─────────────────────────
+   Warning colours, not error colours: nothing is broken. It is a decision
+   about money the clinic has not made yet. */
+.xray-upgrade {
+    margin: 0 0 var(--space-m);
+    padding: 14px 16px;
+    border: 1px solid var(--color-warning, #b8860b);
+    border-radius: var(--radius-m);
+    background-color: var(--color-warning-light, #fff8e1);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.xray-upgrade p { margin: 0 0 8px; }
+.xray-upgrade p:last-child { margin-bottom: 0; }
+
+.xray-upgrade__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+.xray-upgrade__title svg {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    color: var(--color-warning, #b8860b);
+}
+
+.xray-upgrade__list {
+    margin: 0 0 8px;
+    padding-left: 20px;
+}
+
+.xray-upgrade__list li { margin: 2px 0; }
+
+.xray-upgrade__foot { color: var(--text-secondary); }
+
+.xray-drop--locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.xray-drop--locked button[disabled] { cursor: not-allowed; }
+
+.xray-drop__blocked {
+    margin: var(--space-s) auto 0;
+    max-width: 46em;
+    padding: var(--space-s);
+    border: 1px solid var(--color-warning, #b8860b);
+    border-radius: var(--radius-m);
+    background-color: var(--color-warning-light, #fff8e1);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.xray-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-s);
+    margin-top: var(--space-s);
+}
+
+.xray-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    overflow: hidden;
+    background-color: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+}
+
+/* X-rays are light-on-black. A white card behind a transparent PNG washes the
+   detail out, so the thumbnail well is deliberately dark. */
+.xray-card__thumb {
+    display: block;
+    width: 100%;
+    height: 110px;
+    object-fit: contain;
+    background-color: #101418;
+    cursor: zoom-in;
+}
+
+.xray-card__file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 110px;
+    background-color: var(--bg-subtle);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+}
+
+.xray-card__meta {
+    padding: 7px 9px;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.xray-card__name {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.xray-card__date {
+    display: block;
+    margin-top: 1px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.xray-progress {
+    height: 6px;
+    margin-top: var(--space-xs);
+    border-radius: 3px;
+    background-color: var(--border-color-light);
+    overflow: hidden;
+}
+
+.xray-progress__fill {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-teal);
+    /* Scaled, not resized: animating width re-lays-out the panel on every
+       progress tick. js/clinic.js sets scaleX(0..1). */
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.2s linear;
+}
+
+.xray-empty {
+    grid-column: 1 / -1;
+    padding: var(--space-s);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Messaging
+   --------------------------------------------------------------------------- */
+
+.chat-layout {
+    display: flex;
+    gap: var(--space-s);
+    min-height: 420px;
+}
+
+/* The clinic's list of conversations. Hidden for a patient, who only ever has
+   the one thread. */
+.chat-list {
+    flex: 0 0 260px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    overflow-y: auto;
+    max-height: 560px;
+    background-color: var(--bg-card);
+}
+
+.chat-list__item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid var(--border-color-light);
+    background: none;
+    cursor: pointer;
+    transition: background-color var(--transition-clean);
+}
+
+.chat-list__item:hover { background-color: var(--bg-subtle); }
+
+.chat-list__toolbar { padding: 8px; border-bottom: 1px solid var(--border-color); }
+.chat-list__toolbar button { min-height: 44px; width: 100%; }
+
+/* The open conversation: a pale wash and a darker name, no bar down its left
+   edge (removed 2026-09-14, the same change as the sidebar). */
+.chat-list__item.active {
+    background-color: var(--color-accent-light);
+}
+
+.chat-list__item.active .chat-list__name {
+    color: var(--color-accent);
+}
+
+.chat-list__name {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chat-list__preview {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-list__unread {
+    display: inline-block;
+    min-width: 17px;
+    padding: 0 5px;
+    margin-left: 6px;
+    border-radius: 9px;
+    background-color: var(--color-danger);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 17px;
+}
+
+.chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    background-color: var(--bg-card);
+    min-width: 0;
+}
+
+.chat-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.chat-trash-action { min-height: 44px; font-size: 12px; }
+/* Delete reads as a delete: red outline, not the primary blue. Restore goes
+   back to the calm accent. */
+button.chat-trash-action {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 14px;
+    border: 1px solid color-mix(in srgb, var(--color-danger) 40%, var(--border-color));
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+button.chat-trash-action:hover { background-color: color-mix(in srgb, var(--color-danger-light) 80%, var(--color-danger)); }
+button.chat-trash-action.is-restore {
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--border-color));
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+}
+.chat-trash-note { margin: 0; padding: 12px; color: var(--text-primary); background: var(--bg-subtle); }
+.chat-limit-note { margin: 8px; padding: 10px; border-radius: var(--radius-s); color: var(--text-primary); background: var(--color-warning-light); font-size: 12px; line-height: 1.45; }
+.chat-msg__actions { margin-top: 4px; font-size: 11px; }
+.chat-msg__actions summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.chat-msg__actions button { min-height: 44px; }
+.chat-thread[hidden], .chat-compose[hidden], .chat-trash-note[hidden], .chat-trash-action[hidden] { display: none !important; }
+
+.chat-thread {
+    flex: 1;
+    padding: var(--space-s);
+    overflow-y: auto;
+    max-height: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--bg-subtle);
+}
+
+.chat-msg {
+    max-width: 74%;
+    padding: 8px 11px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Mine on the right, theirs on the left — the arrangement every messaging app
+   uses, so nobody has to learn it here. */
+.chat-msg--mine {
+    align-self: flex-end;
+    background-color: var(--color-accent);
+    color: var(--text-light);
+    border-bottom-right-radius: 3px;
+}
+
+.chat-msg--theirs {
+    align-self: flex-start;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-bottom-left-radius: 3px;
+}
+
+.chat-msg__meta {
+    display: block;
+    margin-top: 3px;
+    font-size: 10.5px;
+    opacity: 0.75;
+}
+
+.chat-empty {
+    margin: auto;
+    padding: var(--space-m);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.chat-compose {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.chat-compose textarea {
+    flex: 1;
+    margin: 0;
+    resize: none;
+    min-height: 40px;
+    max-height: 120px;
+}
+
+.chat-compose button { flex-shrink: 0; }
+
+/* A clinic reply is not a consultation, and this line says so on every thread
+   rather than once in a policy nobody reads. */
+.chat-disclaimer {
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--border-color-light);
+    background-color: var(--color-warning-light);
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--color-warning);
+}
+
+@media (max-width: 760px) {
+    .chat-layout { flex-direction: column; }
+    .chat-list {
+        flex: 1 1 auto;
+        max-height: 200px;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   Patient History — the whole record card on one screen
+   ---------------------------------------------------------------------------
+   Prefix: ph-. Checked against every other stylesheet before being written;
+   all seven load on every page, so a class name is global whether or not it
+   was meant to be.
+
+   The layout follows the paper Dental Record Card: lettered sections in the
+   card's own order, label/value pairs down the left, and the chart drawn the
+   way the card draws it. No token is redefined here.
+   --------------------------------------------------------------------------- */
+
+/* Sticky action bar — the export button stays reachable on a long record. */
+.ph-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.ph-toolbar__who h3 { margin: 0; font-size: 20px; }
+
+.ph-toolbar__meta {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.ph-toolbar__actions {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* This returns to the patient picker; it is navigation, not a destructive
+   action. The arrow and accent surface make that direction explicit without
+   borrowing the red reserved for deleting or cancelling records. */
+button.ph-change-patient {
+    min-height: 44px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 32%, var(--border-color));
+}
+
+button.ph-change-patient:hover {
+    background-color: color-mix(in srgb, var(--color-accent-light) 80%, var(--color-accent));
+    border-color: var(--color-accent);
+    color: var(--color-accent-hover);
+}
+
+.ph-change-patient .icon { width: 16px; height: 16px; }
+
+/* Correct name, Patient status and Delete patient: the same 44px touch
+   target as Change patient beside them, for the clinic's tablet (2026-09-27). */
+.ph-toolbar__actions button.btn-sm {
+    min-height: 44px;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+.ph-status {
+    margin: 0 0 var(--space-s);
+    font-size: 13px;
+    color: var(--text-muted);
+    min-height: 18px;
+}
+.ph-status--ok    { color: var(--color-teal); }
+.ph-status--error { color: var(--color-danger); }
+
+/* Sections, lettered the way the card is lettered. */
+.ph-section { margin-bottom: var(--space-m); }
+
+.ph-section__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 var(--space-s);
+    font-size: 17px;
+}
+
+/* A section title with one action beside it (Medical history and its
+   "Edit health answers" button, 2026-09-30). The title keeps its own look;
+   the row only places the button and lets it drop underneath on a phone. */
+.ph-section__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin: 0 0 var(--space-s);
+}
+.ph-section__head .ph-section__title { margin: 0; }
+.ph-section__head button.btn-sm {
+    min-height: 44px;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+.ph-section__letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    border-radius: var(--radius-s);
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ph-subhead {
+    margin: var(--space-m) 0 var(--space-xs);
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.ph-note {
+    margin: 0 0 var(--space-s);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+/* The one thing on this screen that must be read before treating anybody. */
+.ph-alert {
+    margin: 0 0 var(--space-s);
+    padding: 10px 12px;
+    border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
+    background: var(--color-warning-light);
+    border-radius: var(--radius-s);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Label/value pairs. One geometry, repeated — the rows read as a set. */
+.ph-grid { margin: 0; display: grid; gap: 0; }
+
+.ph-row {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: var(--space-s);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color-light);
+    align-items: start;
+}
+.ph-row:last-child { border-bottom: 0; }
+
+.ph-row dt {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.ph-row dd {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* The consent. Set out like the paper card: what was agreed, then the mark,
+   a rule, and the printed name under it — never a bordered panel, which would
+   read as one more box on the page rather than as somebody's signature. */
+/* Laid out the way the paper consent form is: the declaration runs the full
+   width of the card, and the signature sits UNDER it on the right, where the
+   patient signs. It used to wrap at 62 characters with half the row left empty
+   beside it. The long measure is carried by generous leading rather than by a
+   narrow column, which is how printed legal text is set. */
+.ph-sign {
+    margin: var(--space-l) 0 0;
+    padding-top: var(--space-l);
+    border-top: 1px solid var(--border-color-light);
+}
+
+.ph-sign__label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* The clinic it was given to. Ahead of the title, and quieter than it. */
+.ph-sign__clinic {
+    order: -1;
+    flex-basis: 100%;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* The declaration itself. Set in italic so it reads as the clinic's own words
+   being repeated back, not as a note somebody added to this record. Larger and
+   more generously led than the rows above it, because it now runs a longer
+   line and has to stay comfortable to read. */
+.ph-sign__statement {
+    /* 100ch never binds at a dashboard width; it is there so the line does not
+       become unreadable on an ultrawide monitor. */
+    max-width: 100ch;
+    margin: var(--space-s) 0 0;
+    font-size: 13.5px;
+    font-style: italic;
+    line-height: 1.8;
+    color: var(--text-secondary);
+}
+
+/* Under the declaration, on the left margin, lined up with everything else
+   in the panel. */
+.ph-sign__mark {
+    width: 300px;
+    max-width: 100%;
+    margin: var(--space-l) 0 0;
+}
+
+.ph-sign__ink {
+    display: block;
+    width: 100%;
+    height: auto;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--text-muted);
+}
+
+.ph-sign__typed {
+    margin: 0;
+    padding: 22px 0 4px;
+    border-bottom: 1px solid var(--text-muted);
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+.ph-sign__name {
+    margin: 8px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ph-sign__date {
+    margin: 3px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+
+
+
+@media (max-width: 640px) {
+    .ph-row { grid-template-columns: 1fr; gap: 2px; padding: 10px 0; }
+    .ph-toolbar { position: static; }
+}
+
+/* A tooth on the history card is printed, not pressed. */
+.ct--static { cursor: default; }
+.ct--static:hover .ct__zone { filter: none; }
+
+
+/* ---------------------------------------------------------------------------
+   Closing out a financial year
+   ---------------------------------------------------------------------------
+   Prefix: fin-year-. Checked against every other stylesheet before being
+   written; all seven load on every page, so a class name is global whether or
+   not it was meant to be.
+   --------------------------------------------------------------------------- */
+
+.fin-year__title { margin: 0 0 var(--space-xs); font-size: 17px; }
+
+.fin-year__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    flex-wrap: wrap;
+    margin: var(--space-s) 0 var(--space-xs);
+}
+
+.fin-year__status {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.fin-year__status--ok    { color: var(--color-teal); }
+.fin-year__status--warn  { color: var(--color-warning); }
+.fin-year__status--error { color: var(--color-danger); }
+
+/* The caveat is part of the feature, not a footnote — somebody reading a
+   revenue total as profit is the mistake this line exists to prevent. */
+.fin-year__caveat {
+    border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
+    background: var(--color-warning-light);
+    padding: 10px 12px;
+    border-radius: var(--radius-s);
+    margin: 0;
+}
+
+/* What a visit changed on the chart, inside a treatment row. */
+.ph-chart-change {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--color-teal);
+    font-size: 12.5px;
+}
+
+
+/* The bulk export sits under the picker, not inside an open patient — it is a
+   whole-clinic action, and putting it beside one patient's card invites the
+   reading that it exports only that patient. */
+.ph-bulk {
+    margin-top: var(--space-s);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--border-color-light);
+}
+
+/* The owner's "Update last-visit dates" catch-up, under the list filters. */
+.ph-backfill {
+    margin: var(--space-xs) 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.ph-backfill__status { margin-left: var(--space-xs); }
+
+/* ---------------------------------------------------------------------------
+   Message and conversation "⋯" menus (js/clinic.js, 2026-09-24)
+   ---------------------------------------------------------------------------
+   Desktop: the "⋯" appears when the pointer is over the message or the chat,
+   or when it has keyboard focus. Touch screens have no hover, so there it
+   stays visible but quiet. The menu itself is position:fixed on <body>, so
+   the scrolling thread never clips it. */
+.chat-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    align-self: stretch;
+}
+.chat-row--mine { flex-direction: row-reverse; }
+.chat-row .chat-msg { align-self: auto; }
+.chat-msg--unsent { font-style: italic; opacity: 0.8; }
+
+.chat-more {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: opacity var(--transition-clean), background-color var(--transition-clean);
+}
+.chat-more .icon { width: 20px; height: 20px; }
+.chat-more:hover,
+.chat-more[aria-expanded="true"] { background-color: var(--border-color-light); color: var(--text-primary); }
+.chat-more:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+
+@media (hover: hover) and (pointer: fine) {
+    .chat-row .chat-more,
+    .chat-list__row .chat-more { opacity: 0; }
+    .chat-row:hover .chat-more,
+    .chat-row:focus-within .chat-more,
+    .chat-list__row:hover .chat-more,
+    .chat-list__row:focus-within .chat-more,
+    .chat-more[aria-expanded="true"] { opacity: 1; }
+}
+
+.chat-list__row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color-light);
+}
+.chat-list__row .chat-list__item { flex: 1; min-width: 0; border-bottom: none; }
+.chat-list__row .chat-list__more { margin-right: 4px; }
+
+.chat-menu {
+    position: fixed;
+    z-index: 3500;
+    min-width: 190px;
+    padding: 4px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 10px 28px rgba(15, 43, 38, 0.18);
+}
+.chat-menu__item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+.chat-menu__item .icon { width: 18px; height: 18px; }
+.chat-menu__item:hover,
+.chat-menu__item:focus-visible { background-color: var(--bg-subtle); outline: none; }
+.chat-menu__item--danger { color: var(--color-danger); }
+.chat-menu__item--danger:hover,
+.chat-menu__item--danger:focus-visible { background-color: var(--color-danger-light); }
+
+.chat-cleared-note {
+    align-self: center;
+    margin: 4px 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background-color: var(--border-color-light);
+    color: var(--text-muted);
+    font-size: 11.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat-more { transition: none; }
+}
+
+/* The message or chat whose "⋯" menu is open. */
+.chat-row.is-selected .chat-msg { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 35%, transparent); }
+.chat-list__row.is-selected { background-color: var(--color-accent-light); }
+
+/* Phones: the "⋯" actions slide up as a bottom sheet (owner choice
+   2026-09-24), so no message is covered. The page behind is dimmed; tapping
+   it, Cancel or Escape closes the sheet. */
+.chat-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 3400;
+    background-color: rgba(15, 43, 38, 0.35);
+}
+.chat-menu.chat-menu--sheet {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    min-width: 0;
+    padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -8px 28px rgba(15, 43, 38, 0.22);
+    animation: chat-sheet-up 0.18s ease-out;
+}
+.chat-menu--sheet .chat-menu__item { min-height: 52px; font-size: 15px; }
+.chat-menu__cancel {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: var(--bg-subtle);
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 600;
+}
+@keyframes chat-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+    .chat-menu.chat-menu--sheet { animation: none; }
+}

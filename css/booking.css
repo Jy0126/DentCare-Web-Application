@@ -1,0 +1,597 @@
+/* ===========================================================================
+   DentCare — Booking & Registration Screen (#screen-booking)
+   ---------------------------------------------------------------------------
+   Contents
+     1. Page shell & header
+     2. Step progress bar
+     3. Form step sections
+     4. Consent statement
+     5. Digital signature pad
+     6. Responsive
+
+   Depends on css/base.css for tokens and css/landing.css for the shared
+   .brand and .btn components.
+   =========================================================================== */
+
+
+/* ---------------------------------------------------------------------------
+   1. PAGE SHELL & HEADER
+   ------------------------------------------------------------------------ */
+
+/* ── The ambient mesh behind login and registration ─────────────────────────
+ *
+ * This screen is the hinge between the landing page and the portal, and it
+ * used to look like neither: a flat cool grey that belonged to the dashboard,
+ * met by a visitor who had just come from warm marble and gold. Arriving at a
+ * different-looking product one click after deciding to trust this one is a
+ * small thing that reads as a bigger one.
+ *
+ * WHY MARBLE AND GOLD RATHER THAN THE USUAL BLUE.
+ * The obvious move for an auth screen is a deep blue or slate mesh — it is
+ * what enterprise sign-in pages do, and it is therefore what this page would
+ * look like if nobody had made a decision. This clinic's identity is warm
+ * stone with gold veining, used across the whole public site. Veining is
+ * already a mesh; it just happens to be this clinic's mesh instead of
+ * everyone's.
+ *
+ * TOKENS ARE DECLARED LOCALLY, ON PURPOSE.
+ * The landing palette is scoped to .landing rather than :root, deliberately,
+ * so it cannot drag the tooth chart and the billing tables along with it.
+ * .booking-page is a SIBLING of .landing, not a child, so those variables do
+ * not reach here. Redeclaring the three needed values is the honest fix;
+ * moving them to :root to save six lines would undo a decision that is
+ * holding two very different visual systems apart.
+ *
+ * LIGHTWEIGHT: four CSS gradients and no image. A background photograph here
+ * would be the largest asset on the page, downloaded before a patient can see
+ * the field they came to type into, on a connection that is often a phone.
+ * ------------------------------------------------------------------------ */
+
+.booking-page {
+    --auth-stone:  #FAF7F1;   /* marble, as a flat colour */
+    --auth-deep:   #F2ECE1;   /* the recessed tone under it */
+    --auth-gold:   201, 169, 97;   /* the vein, as RGB so alpha can vary */
+    --auth-brand:  138, 95, 58;    /* the warm brown, likewise */
+
+    min-height: 100vh;
+    padding: 32px 20px 80px;
+
+    /* Four soft pools rather than one flat wash. Sized in vmax so the mesh
+       keeps its proportions from a phone to a wide monitor instead of
+       stretching into bands. Every layer sits under 0.1 alpha: the test for a
+       background is that you stop noticing it once you start typing. */
+    background-color: var(--auth-stone);
+    background-image:
+        radial-gradient(58vmax 46vmax at 12% 8%,   rgba(var(--auth-gold), 0.10), transparent 68%),
+        radial-gradient(52vmax 42vmax at 88% 4%,   rgba(var(--auth-brand), 0.06), transparent 66%),
+        radial-gradient(64vmax 52vmax at 78% 92%,  rgba(var(--auth-gold), 0.07), transparent 70%),
+        radial-gradient(46vmax 46vmax at 4% 84%,   rgba(var(--auth-brand), 0.05), transparent 64%),
+        linear-gradient(180deg, transparent 0%, var(--auth-deep) 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* A phone cannot afford a fixed background: it repaints the whole layer on
+   every scroll frame. The registration form is long, so this is exactly where
+   that would be felt. Same mesh, scrolled with the content. */
+@media (max-width: 1000px), (hover: none) {
+    .booking-page { background-attachment: scroll; }
+}
+
+/* The vein.
+   One hairline arc, drawn as an inline SVG data URI — about 300 bytes, no
+   request. It is the geometry the brief asked for, kept to a single stroke:
+   a wireframe grid behind a form is pattern for its own sake, and this page
+   has eighteen inputs already competing for the reader's attention. */
+.booking-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='xMidYMid slice'%3E%3Cpath d='M-40 620 C 220 520 360 660 640 540 C 900 430 1010 520 1240 430' fill='none' stroke='%23C9A961' stroke-opacity='0.30' stroke-width='1.2'/%3E%3Cpath d='M-40 690 C 240 600 380 720 660 610 C 920 505 1040 590 1240 505' fill='none' stroke='%23C9A961' stroke-opacity='0.16' stroke-width='0.9'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+}
+
+/* Everything the visitor actually uses sits above the mesh. */
+.booking-page > * { position: relative; z-index: 1; }
+
+.booking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-width: 980px;
+    margin: 0 auto 32px;
+}
+
+/* The card has to win against the mesh behind it, which is the one job a
+   background like that can get wrong. Near-opaque rather than a glass panel:
+   at eighteen inputs, legibility beats the effect, and a form you can half
+   see the wallpaper through is harder to read for exactly the people this
+   clinic serves. The blur is there for the few pixels at the edge where the
+   surface meets the veining, not as a look. */
+.booking-card {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-l);
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: var(--shadow-large);
+}
+
+/* Only where it is supported, and only as a refinement: the card is already
+   readable without it. */
+@supports (backdrop-filter: blur(6px)) {
+    .booking-card { backdrop-filter: blur(6px); }
+}
+
+
+/* ---------------------------------------------------------------------------
+   2. STEP PROGRESS BAR
+   .is-active / .is-done are set by updateBookingStepIndicator() in js/auth.js
+   ------------------------------------------------------------------------ */
+
+.steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border-color-light);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 700;
+    transition: var(--transition-clean);
+}
+
+.step__num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background-color: var(--bg-canvas);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.step.is-active { color: var(--color-accent); }
+
+.step.is-active .step__num {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 102, 255, 0.3);
+}
+
+.step.is-done { color: var(--color-success); }
+
+.step.is-done .step__num {
+    border-color: var(--color-success);
+    background-color: var(--color-success);
+    color: #ffffff;
+}
+
+
+/* ---------------------------------------------------------------------------
+   3. FORM STEP SECTIONS
+   ------------------------------------------------------------------------ */
+
+.form-step {
+    animation: form-step-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes form-step-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-step__title {
+    margin-bottom: 6px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.form-step__subtitle {
+    margin-bottom: 28px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   4. CONSENT STATEMENT
+   ------------------------------------------------------------------------ */
+
+.consent {
+    margin: 32px 0;
+    padding: 24px 28px;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-m);
+    background-color: #f8fafc;
+    box-shadow: var(--shadow-soft);
+}
+
+.consent__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.consent__header h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.consent__text {
+    margin-bottom: 18px;
+    padding: 18px 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-s);
+    background-color: #ffffff;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.7;
+}
+
+.consent__agree {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.consent__agree input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+}
+
+.consent__agree label {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+
+/* ---------------------------------------------------------------------------
+   5. DIGITAL SIGNATURE PAD
+   Drawing behaviour lives in js/booking.js
+   ------------------------------------------------------------------------ */
+
+.signature {
+    margin-bottom: 32px;
+    padding: 28px;
+    border: 1.5px dashed var(--border-color);
+    border-radius: var(--radius-m);
+    background-color: #ffffff;
+}
+
+.signature__header { margin-bottom: 16px; }
+
+.signature__title {
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.signature__subtitle {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.signature__pad {
+    display: block;
+    width: 100%;
+    height: 160px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-canvas);
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.signature__tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.signature__hint {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.btn--clear {
+    padding: 6px 13px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.btn--clear:hover {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+
+/* ---------------------------------------------------------------------------
+   6. RESPONSIVE
+   ------------------------------------------------------------------------ */
+
+@media (max-width: 992px) {
+    .booking-card { padding: 32px 24px; }
+}
+
+@media (max-width: 768px) {
+    .steps {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   ROOM ON A PHONE (client revision 10, 2026-09-30)
+   ---------------------------------------------------------------------------
+   The clinic: on a phone the forms are squeezed, with too much padding, and it
+   is hard to type and to sign. Measured at 360px, the page padding (20) and the
+   card padding (24) stacked and left a 270px column; inside the signature box
+   it was 212px.
+
+   On a phone the registration card now runs edge to edge with 16px inside it,
+   so every field is the width of the phone less 32px. Boxes that wrapped
+   fields in a second layer of padding (the signature block) give it up.
+   Everything here is inside one max-width: 600px block; nothing above 600px
+   changes. The staff "Add or Register a Patient" tab is the same form and gets
+   the same rules.
+   ------------------------------------------------------------------------ */
+
+@media (max-width: 600px) {
+    .booking-page:not(.booking-page--login) { padding: 16px 12px 48px; }
+
+    /* Edge to edge: the 12px page padding is cancelled, the side borders and
+       the rounded corners go with it. */
+    .booking-page:not(.booking-page--login) .booking-card,
+    .staff-intake-card:not(#_) {
+        width: auto;
+        max-width: none;
+        margin-left: -12px;
+        margin-right: -12px;
+        padding: 20px 16px 28px;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+    }
+
+    /* Fields: full width, a finger tall, and 16px type so an iPhone does not
+       zoom the page when one is tapped. */
+    #form-register input:not([type="checkbox"]):not([type="radio"]),
+    #form-register select,
+    #form-register textarea,
+    #form-login input:not([type="checkbox"]):not([type="radio"]),
+    #tab-patient-appointments input:not([type="checkbox"]):not([type="radio"]),
+    #tab-patient-appointments select,
+    #tab-patient-appointments textarea {
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    /* Written with the page class twice over so it outranks the 700px login
+       rule further down this file, which sets a wider 24px. */
+    .booking-page.booking-page--login { padding-left: 12px; padding-right: 12px; }
+    .booking-page.booking-page--login #form-login { padding: 24px 16px 28px; }
+
+    /* The step indicator on one line: three numbered circles, and the name of
+       the step you are on. */
+    #form-register .steps {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+    }
+    #form-register .step { min-width: 0; font-size: 14px; }
+    #form-register .step > span:not(.step__num) { display: none; }
+    #form-register .step.is-active > span:not(.step__num) {
+        display: inline;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #form-register .form-step__title { font-size: 20px; line-height: 1.25; }
+    #form-register .form-step__subtitle { margin-bottom: 18px; }
+
+    /* YES / NO and the checkbox cards are things a finger has to hit. */
+    #form-register .radio-pill-item {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 0 18px;
+        font-size: 14px;
+    }
+    #form-register .checklist-grid { grid-template-columns: minmax(0, 1fr); }
+    #form-register .checkbox-card { min-height: 44px; }
+
+    #form-register .consent { margin: 24px 0; padding: 16px; }
+    #form-register .consent__text { padding: 12px 14px; }
+    #form-register .consent__agree { align-items: flex-start; min-height: 44px; }
+
+    /* The signature block stops being a box inside the card: its pad and the
+       two fields under it take the full width of the form. */
+    #form-register .signature {
+        padding: 0;
+        border: 0;
+        margin-bottom: 24px;
+    }
+    #form-register .signature__pad { height: 180px; }
+    #form-register .signature__tools { flex-wrap: wrap; margin-bottom: 16px; }
+    #form-register .btn--clear {
+        min-height: 44px;
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+
+    /* The last row: stacked, full width, the primary action first and Back
+       under it. The inline flex values on the buttons are the desktop row's. */
+    #form-register .form-step-actions {
+        flex-direction: column-reverse;
+        gap: 10px;
+        margin-top: 24px !important;
+    }
+    #form-register .form-step-actions > button,
+    #form-register .form-step-actions .staff-intake-actions button {
+        flex: 0 0 auto !important;
+        width: 100%;
+        min-height: 48px;
+    }
+    #form-register .form-step-actions .staff-intake-actions { flex: 0 0 auto; width: 100%; }
+}
+
+/* ---------------------------------------------------------------------------
+   THE BOOKING HEADER BRAND
+   ---------------------------------------------------------------------------
+   These rules used to come from css/landing.css, which styled `.brand__*`
+   globally. When that file was scoped to `.landing`, the booking screen lost
+   them and the logo fell back to its intrinsic size -- 590x552 -- which blew
+   the header out to 686px tall.
+
+   The mark itself is untouched: same file, same proportions, only constrained.
+   If this header ever looks wrong again, check here before editing the image.
+--------------------------------------------------------------------------- */
+.booking-page .brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    text-decoration: none;
+}
+
+.booking-page .brand__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background-color: #ffffff;
+}
+
+/* The one line that was actually missing. An <img> with no width renders at
+   its natural size. */
+.booking-page .brand__logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.booking-page .brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.booking-page .brand__name {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.booking-page .brand__tagline {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+/* Login is a focused, branded surface. Registration keeps the wider existing
+   form layout; the class is switched by toggleAuthForm() without changing auth. */
+.booking-page--login { --login-ink: #173e49; --login-sea: #dcefed; }
+.booking-page--login .booking-header { max-width: 940px; }
+.booking-page--login .booking-header .brand { display: none; }
+.booking-page--login .booking-card {
+    max-width: 940px;
+    display: grid;
+    grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    border-color: #d5e4e2;
+    border-radius: 24px;
+    box-shadow: 0 24px 64px rgba(25, 68, 75, .13);
+}
+.booking-page .login-aside { display: none; }
+.booking-page--login .login-aside {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 510px;
+    padding: 42px;
+    color: var(--login-ink);
+    background: radial-gradient(circle at 100% 100%, #c7e4e1 0, transparent 50%), linear-gradient(145deg, #edf8f6, #dcefed);
+    position: relative;
+}
+.login-aside__brand { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+.login-aside__mark { display: grid; place-items: center; width: 66px; height: 66px; flex: none; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgba(25, 68, 75, .1); }
+.login-aside__mark img { width: 54px; height: 54px; object-fit: contain; }
+.login-aside__brand strong { display: block; font-size: 25px; line-height: 1.1; }
+.login-aside__brand small { display: block; max-width: 190px; margin-top: 5px; font-size: 11px; font-weight: 600; line-height: 1.35; }
+.login-aside__message { position: relative; z-index: 1; }
+.login-aside__message p { max-width: 340px; margin: 0 0 14px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(38px, 3.7vw, 52px); line-height: 1.02; font-weight: 500; }
+.login-aside__message span { display: block; max-width: 260px; font-size: 14px; line-height: 1.55; }
+.booking-page--login #form-login { justify-content: center; padding: 52px clamp(28px, 5vw, 68px); }
+.booking-page--login #form-login .form-step__title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 43px; font-weight: 600; line-height: 1.08; color: var(--login-ink); }
+.booking-page--login #form-login .form-step__subtitle { margin-bottom: 31px; line-height: 1.55; }
+.booking-page--login #form-login label { font-weight: 600; }
+.booking-page--login #form-login input { min-height: 48px; border-radius: 9px; }
+.booking-page--login #form-login .login-submit { min-height: 50px; padding: 12px 16px; border-radius: 9px; font-size: 15px; }
+.booking-page--login #form-login .auth-form-footer { margin-top: 23px; line-height: 1.5; }
+@media (max-width: 700px) {
+    .booking-page--login { padding: 16px 14px 48px; }
+    .booking-page--login .booking-header { gap: 12px; margin-bottom: 17px; }
+    .booking-page--login .booking-header > .btn { min-height: 42px; }
+    .booking-page--login .auth-tabs { flex: 1 1 100%; order: 2; }
+    .booking-page--login .auth-tab-btn { font-size: 13px; }
+    .booking-page--login .booking-card { display: block; border-radius: 20px; }
+    .booking-page--login .login-aside { min-height: 0; padding: 22px 24px; }
+    .booking-page--login .login-aside__message { display: none; }
+    .booking-page--login .login-aside__mark { width: 55px; height: 55px; border-radius: 15px; }
+    .booking-page--login .login-aside__mark img { width: 46px; height: 46px; }
+    .booking-page--login .login-aside__brand strong { font-size: 22px; }
+    .booking-page--login #form-login { padding: 27px 24px 32px; }
+    .booking-page--login #form-login .form-step__title { font-size: 36px; }
+    .booking-page--login #form-login .form-step__subtitle { margin-bottom: 24px; }
+}

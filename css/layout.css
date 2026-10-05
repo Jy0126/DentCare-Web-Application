@@ -1,0 +1,897 @@
+/*
+ * DentCare – App Shell & Layout Structure
+ */
+
+.app-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background-color: var(--bg-sidebar);
+    color: var(--text-primary);
+    padding: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border-right: 1px solid var(--border-color);
+}
+
+.sidebar-title {
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+    text-align: left;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-title span.logo-icon {
+    font-size: 28px;
+    color: var(--color-accent);
+}
+
+.sidebar-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 0;
+    margin-bottom: var(--space-l);
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: var(--space-s);
+}
+
+/* User profile is omitted per user request */
+.sidebar-user {
+    display: none !important;
+}
+
+.main-content {
+    flex-grow: 1;
+    min-width: 0;
+    padding: var(--space-l);
+    background-color: var(--bg-canvas);
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Sidebar navigation links (Clean pill style inspired by reference UI) */
+.nav-item {
+    font-family: var(--font-body);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    text-align: left;
+    margin-bottom: 2px;
+    padding: 11px var(--space-s);
+    border-radius: var(--radius-s);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-clean);
+}
+
+.nav-item:hover {
+    color: var(--color-accent);
+    background-color: var(--color-accent-light);
+}
+
+.nav-item.active {
+    color: var(--color-accent);
+    background-color: var(--color-accent-light);
+    /* Shown by the filled wash and the weight, not a bar down the left edge
+       (removed 2026-09-13). marble.css fills the grouped items solid in the
+       group's own colour, which is the look that actually ships. */
+    font-weight: 700;
+}
+
+/* Sidebar icons inherit the item's colour, so they highlight with the label */
+.nav-item .icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.logout-button {
+    color: var(--text-muted);
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--space-s);
+    border-radius: 0;
+}
+
+.logout-button:hover {
+    color: var(--color-danger);
+    background: none;
+}
+
+.sidebar-brand-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.sidebar-toggle-btn {
+    display: none; /* Hidden on desktop */
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* Responsive grid overrides */
+.form-row {
+    display: flex;
+    gap: var(--space-s);
+}
+
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+.flex-3 { flex: 3; }
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 240px;
+    }
+}
+
+/* At a 240px desktop sidebar, the 26px title plus the 44px bell exhausts
+   the padded row. Give the title a little less width so their gap stays put. */
+@media (min-width: 901px) and (max-width: 1024px) {
+    .sidebar { padding-inline: 16px; }
+    .sidebar-title { font-size: 23px; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Phones and tablets: a top bar, and the menu as a slide-in panel
+   ─────────────────────────────────────────────────────────────
+
+   Rebuilt 2026-09-16 after the clinic opened the portal on a phone and could
+   not find the menu in any module. The old version turned the sidebar into a
+   top bar with a hamburger whose three bars were drawn in var(--text-light),
+   white, on the white bar, so the only way into every module was invisible.
+   It also dropped the menu straight down over the page, and it only switched
+   on at 768px, so an iPad in portrait (810 to 834px) got a squeezed desktop
+   sidebar instead.
+
+   Now, at 900px and below:
+   - the sidebar is a 64px top bar: logo on the left, a labelled "Menu" button
+     on the right, dark on light so it is always visible;
+   - the modules slide in from the left as a panel below the bar, over a dimmed
+     backdrop; tapping the backdrop, pressing Escape or choosing a module
+     closes it (js/app.js);
+   - 900px matches the drawer tweaks already in css/marble.css. */
+@media (max-width: 900px) {
+    .app-layout {
+        flex-direction: column;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        --mobile-bar-h: 64px;
+        width: 100%;
+        height: var(--mobile-bar-h);
+        min-height: var(--mobile-bar-h);
+        flex: 0 0 auto;
+        padding: 10px 16px;
+        flex-direction: column !important;
+        align-items: stretch;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        box-sizing: border-box;
+        position: relative;
+        z-index: 1010;
+        background-color: var(--bg-sidebar);
+    }
+
+    .sidebar-brand-row {
+        display: flex;
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        width: 100%;
+        height: 44px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .sidebar-title {
+        font-size: 20px;
+        margin-bottom: 0;
+        line-height: 1.2;
+    }
+
+    .sidebar-subtitle, .sidebar-user {
+        display: none !important;
+    }
+
+    /* The Menu button: an outlined pill with the icon AND the word, so a
+       non-technical user does not have to know what three lines mean. */
+    .sidebar-toggle-btn {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 0 14px 0 12px !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 999px;
+        background-color: #ffffff !important;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color var(--transition-clean), border-color var(--transition-clean);
+    }
+
+    .sidebar-toggle-btn:hover,
+    .sidebar.menu-open .sidebar-toggle-btn {
+        background-color: var(--color-accent-light) !important;
+        border-color: color-mix(in srgb, var(--color-accent) 40%, var(--border-color)) !important;
+    }
+
+    .sidebar-toggle-icon {
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        width: 18px;
+        height: 18px;
+    }
+
+    .sidebar-toggle-btn .bar {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background-color: var(--text-primary);
+        border-radius: 1px;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    }
+
+    /* The icon becomes an X while the panel is open. */
+    .sidebar.menu-open .sidebar-toggle-btn .bar:nth-child(1) {
+        transform: translateY(6px) rotate(45deg);
+    }
+    .sidebar.menu-open .sidebar-toggle-btn .bar:nth-child(2) {
+        opacity: 0;
+    }
+    .sidebar.menu-open .sidebar-toggle-btn .bar:nth-child(3) {
+        transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* The panel. Always in the page, moved off to the left when closed, so it
+       can slide; visibility keeps its buttons out of the tab order while it
+       is shut. */
+    .sidebar-menu {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed;
+        top: var(--mobile-bar-h);
+        bottom: 0;
+        left: 0;
+        width: min(320px, 86vw);
+        padding: 16px 14px calc(16px + env(safe-area-inset-bottom, 0px));
+        background-color: var(--bg-sidebar);
+        border-right: 1px solid var(--border-color);
+        box-shadow: 12px 0 32px -12px rgba(20, 30, 40, 0.28);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        z-index: 2;
+        transform: translateX(-104%);
+        visibility: hidden;
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.28s;
+    }
+
+    .sidebar.menu-open .sidebar-menu {
+        transform: translateX(0);
+        visibility: visible;
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
+    }
+
+    /* The dimmed backdrop behind the panel. A tap on it lands on .sidebar
+       itself, which js/app.js treats as "close". */
+    .sidebar::after {
+        content: "";
+        position: fixed;
+        top: var(--mobile-bar-h);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(20, 30, 40, 0.38);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 1;
+    }
+
+    .sidebar.menu-open::after {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .sidebar .nav-item {
+        display: flex !important;
+        width: 100% !important;
+        min-height: 48px;
+        margin-bottom: 2px !important;
+        padding: 12px var(--space-s) !important;
+        font-size: 15px !important;
+    }
+
+    .sidebar .nav-item.active {
+        border-radius: var(--radius-s) !important;
+    }
+
+    .sidebar .logout-button {
+        margin-top: var(--space-m) !important;
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+    .sidebar-menu,
+    .sidebar.menu-open .sidebar-menu,
+    .sidebar::after,
+    .sidebar-toggle-btn .bar {
+        transition: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: var(--space-s);
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: var(--space-xs);
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   PORTAL GATE
+   Covers portal.php while Firebase works out who is signed in. js/app.js
+   removes it once a dashboard is up, or redirects to index.php if nobody is
+   signed in. Without it the dashboards flash on screen for anyone who types
+   the portal URL directly.
+   ------------------------------------------------------------------------ */
+
+.portal-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-canvas);
+}
+
+.portal-gate__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.portal-gate__logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.portal-gate { transition: opacity 0.2s ease; }
+.portal-gate.is-leaving { opacity: 0; pointer-events: none; }
+
+/* The loader (owner choice 2026-09-24): the logo in a white circle that
+   breathes gently, and a thin blue ring turning around it. Transform-only
+   animations run on the compositor, cost no layout, and add no download. */
+.portal-loader {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 116px;
+    height: 116px;
+}
+
+.portal-loader__disc {
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    box-shadow: 0 8px 24px rgba(17, 74, 111, 0.16);
+    animation: portal-breathe 2.4s ease-in-out infinite;
+}
+
+.portal-loader__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid color-mix(in srgb, var(--color-accent) 14%, transparent);
+    border-top-color: var(--color-accent);
+    border-right-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+    animation: portal-spin 1.1s linear infinite;
+}
+
+@keyframes portal-spin { to { transform: rotate(360deg); } }
+@keyframes portal-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .portal-loader__disc,
+    .portal-loader__ring { animation: none; }
+    .portal-gate { transition: none; }
+}
+
+.portal-gate__text {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Phones — added 2026-09-13 from the launch audit
+   ─────────────────────────────────────────────────────────────
+
+   The dashboard cards carry inline min-widths (480px on the patient's own
+   appointments and history, 520px on inventory) so two cards sit side by side
+   on a desktop. On a 360–414px phone the same minimum is wider than the screen,
+   so the whole dashboard scrolled sideways and the right half of every row —
+   Cancel, Reschedule — sat off-screen. !important is required: an inline style
+   outranks any stylesheet rule without it. Wide tables inside still scroll in
+   their own .table-container, which is where sideways scrolling belongs.
+
+   100dvh, not 100vh: on a phone 100vh is the height WITHOUT the address bar,
+   so the bottom of a fixed-height shell — often a Save button — was hidden
+   behind it. The vh line stays first as the fallback for older browsers.
+
+   16px inputs: iOS zooms the page in on any field under 16px when it gains
+   focus and does not zoom back out, which reads as the form breaking. */
+@media (max-width: 768px) {
+    .card.flex-1,
+    .card.flex-2 {
+        min-width: 0 !important;
+        flex-basis: 100%;
+    }
+
+    .app-layout {
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Notification bell (js/notifications.js)
+   ─────────────────────────────────────────────────────────────
+   Sits at the right end of the sidebar brand row: beside the DentCare name on
+   a desktop, at the right of the top bar on phones and tablets. The panel is
+   position:fixed because the desktop sidebar scrolls (overflow-y: auto) and
+   would clip anything absolutely positioned inside it. */
+.notif {
+    position: relative;
+    margin-left: auto;
+    flex: 0 0 44px;
+}
+
+/* The bell has depth (owner request 2026-09-24): a glassy gradient disc
+   with a top highlight, an inner shade at the bottom and a soft layered
+   shadow, so it reads as a raised control rather than a flat circle. */
+.notif-bell {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 999px;
+    background: linear-gradient(150deg, #ffffff 0%, #eef5fa 48%, #d7e7f2 100%);
+    box-shadow:
+        0 6px 14px rgba(17, 74, 111, 0.16),
+        0 1px 3px rgba(17, 74, 111, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        inset 0 -3px 6px rgba(17, 74, 111, 0.10);
+    color: var(--color-accent);
+    cursor: pointer;
+    transition: transform var(--transition-clean), box-shadow var(--transition-clean);
+}
+
+/* The glass sheen across the upper half. */
+.notif-bell::before {
+    content: "";
+    position: absolute;
+    inset: 2px 5px 50% 5px;
+    border-radius: 999px 999px 60% 60%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+    pointer-events: none;
+}
+
+.notif-bell .icon { position: relative; width: 20px; height: 20px; stroke-width: 2.2; }
+
+.notif-bell:hover,
+.notif-bell[aria-expanded="true"] {
+    transform: translateY(-1px);
+    box-shadow:
+        0 10px 20px rgba(17, 74, 111, 0.22),
+        0 2px 4px rgba(17, 74, 111, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        inset 0 -3px 6px rgba(17, 74, 111, 0.12);
+}
+
+.notif-bell:active { transform: translateY(0) scale(0.97); }
+
+/* Desktop: the name block is the title plus a subtitle (about 94px tall), so
+   centring the bell on it put the bell at subtitle height. Level it with the
+   DentCare title line instead (the 32px logo line: (32 - 44) / 2 = -6px).
+   Phones already centre it in the 64px top bar. */
+@media (min-width: 901px) {
+    .sidebar-brand-row > .notif { align-self: flex-start; margin-top: -6px; }
+}
+
+.notif-bell:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.notif-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    z-index: 1;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 5px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background: linear-gradient(160deg, #e0584a 0%, var(--color-danger) 60%, #a93226 100%);
+    box-shadow: 0 3px 8px rgba(192, 57, 43, 0.45);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 17px;
+    text-align: center;
+    box-sizing: border-box;
+    font-variant-numeric: tabular-nums;
+}
+
+/* A soft halo pulsing out of the number while anything is unread.
+   transform/opacity only, so it costs the page no layout or repaint. */
+.notif-count::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 999px;
+    background-color: var(--color-danger);
+    opacity: 0;
+    z-index: -1;
+}
+
+.notif-bell.has-unread .notif-count::after { animation: notif-halo 2s ease-out 0.6s 6; }
+
+@keyframes notif-halo {
+    0% { transform: scale(1); opacity: 0.45; }
+    100% { transform: scale(1.9); opacity: 0; }
+}
+
+.notif-count[hidden] { display: none; }
+
+.notif-panel {
+    position: fixed;
+    z-index: 3000;
+    width: min(380px, calc(100vw - 24px));
+    max-height: min(70vh, 540px);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(15, 43, 38, 0.18);
+    overflow: hidden;
+}
+
+.notif-panel[hidden] { display: none; }
+
+.notif-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 12px 12px 16px;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.notif-panel__title {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.notif-mark {
+    min-height: 44px;
+    padding: 0 10px;
+    border: none;
+    background: none;
+    color: var(--color-accent);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.notif-mark:disabled { color: var(--text-muted); cursor: default; }
+
+.notif-list {
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.notif-panel__foot {
+    display: flex;
+    justify-content: flex-end;
+    padding: 6px 12px;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.notif-clear {
+    min-height: 44px;
+    padding: 0 10px;
+    border: none;
+    background: transparent;
+    color: var(--color-accent);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.notif-clear:hover:not(:disabled) { background: var(--color-accent-light); }
+.notif-clear:disabled { color: var(--text-muted); cursor: default; }
+
+.notif-empty {
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.notif-empty--error { padding: 10px 12px; color: var(--color-danger); }
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: var(--text-secondary);
+    text-align: left;
+    cursor: pointer;
+}
+
+.notif-item:hover,
+.notif-item:focus-visible { background-color: var(--bg-subtle); }
+.notif-item:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+.notif-item.is-unread { background-color: color-mix(in srgb, var(--color-accent-light) 55%, #ffffff); }
+.notif-item.is-unread:hover { background-color: var(--color-accent-light); }
+
+.notif-item__icon {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+}
+
+.notif-item__icon .icon { width: 18px; height: 18px; }
+.notif-item--success .notif-item__icon { background-color: var(--color-success-light); color: var(--color-success); }
+.notif-item--warning .notif-item__icon { background-color: var(--color-warning-light); color: var(--color-warning); }
+.notif-item--danger .notif-item__icon { background-color: var(--color-danger-light); color: var(--color-danger); }
+
+.notif-item__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+
+.notif-item__title {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.notif-item.is-unread .notif-item__title { font-weight: 700; }
+
+.notif-item__detail {
+    font-size: 12.5px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.notif-item__dot {
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    margin-top: 6px;
+    border-radius: 999px;
+    background-color: var(--color-accent);
+}
+
+/* Counts on sidebar items: bookings waiting for approval (clinic) or
+   appointment updates not yet seen (patient). Same shape as the Messages
+   unread badge in css/clinic.css. */
+.nav-count {
+    display: inline-block;
+    min-width: 20px;
+    margin-left: auto;
+    padding: 0 6px;
+    border-radius: 999px;
+    background-color: var(--color-danger);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+    .notif-panel {
+        top: 70px;
+        left: 8px;
+        right: 8px;
+        width: auto;
+        max-height: calc(100dvh - 86px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notif-bell { transition: none; }
+}
+
+/* The bell rings: once the moment something new arrives (.is-ringing, set by
+   js/notifications.js), and then a short ring every few seconds for as long
+   as anything is unread (owner request 2026-09-24). */
+@keyframes notif-ring {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-12deg); }
+    45% { transform: rotate(9deg); }
+    60% { transform: rotate(-6deg); }
+    75% { transform: rotate(3deg); }
+}
+
+/* Rings for the first second of every 4.5 seconds, then rests. */
+@keyframes notif-ring-idle {
+    0%, 22%, 100% { transform: rotate(0); }
+    3% { transform: rotate(14deg); }
+    6.5% { transform: rotate(-12deg); }
+    10% { transform: rotate(9deg); }
+    13.5% { transform: rotate(-6deg); }
+    17% { transform: rotate(3deg); }
+}
+
+.notif-bell > .icon { transform-origin: 50% 10%; }
+/* Three rings, then it rests with its red count. A ring that never stops keeps
+   a phone's graphics busy for as long as the page is open. */
+.notif-bell.has-unread > .icon { animation: notif-ring-idle 4.5s ease-in-out 0.6s 3; }
+.notif-bell.is-ringing > .icon { animation: notif-ring 1s ease-in-out; }
+
+/* Something unread: the glass takes on the clinic red beside its count, so
+   it is noticed from across the desk. */
+.notif-bell.has-unread {
+    border-color: rgba(255, 255, 255, 0.85);
+    background: linear-gradient(150deg, #ffffff 0%, #fdeeec 48%, #f6d3cf 100%);
+    box-shadow:
+        0 6px 16px rgba(192, 57, 43, 0.22),
+        0 1px 3px rgba(192, 57, 43, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        inset 0 -3px 6px rgba(192, 57, 43, 0.12);
+    color: var(--color-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notif-bell > .icon,
+    .notif-bell.has-unread > .icon,
+    .notif-bell.is-ringing > .icon,
+    .notif-bell.has-unread .notif-count::after { animation: none; }
+    .notif-bell:hover, .notif-bell[aria-expanded="true"] { transform: none; }
+}
+
+/* ── Confirm your email (2026-10-01) ────────────────────────────────────────
+   templates/partials/email-confirm.php. One card in the middle of the
+   window, in place of the patient hub, until the link is opened. */
+.email-confirm {
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+    padding: 16px;
+    background-color: var(--bg-canvas);
+}
+
+.email-confirm__card {
+    width: 100%;
+    max-width: 480px;
+    text-align: left;
+}
+
+.email-confirm__logo { display: block; margin-bottom: var(--space-s); }
+
+.email-confirm__card h2 { margin: 0 0 var(--space-xs); }
+
+.email-confirm__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: var(--space-s) 0;
+}
+
+.email-confirm__status {
+    min-height: 1.4em;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+}
+
+.email-confirm__status[data-tone="error"] { color: var(--color-danger); }
+.email-confirm__status[data-tone="success"] { color: var(--color-success, var(--text-primary)); }
+
+/* The first sign-in screen (2026-10-02, js/first-signin.js): the same card,
+   wider for the consent and the signature pad. */
+.email-confirm__card.first-signin { max-width: 640px; }
+.first-signin h3 { margin: var(--space-s) 0 8px; font-size: 16px; }
+.first-signin .consent.collect-consent { margin: 8px 0 16px; padding: 16px; }
+.first-signin .signature.collect-consent { margin-bottom: 8px; padding: 16px; }
+.first-signin .signature__pad { height: 180px; }
+
+/* On Patient History: email not confirmed yet (2026-10-01). A note for the
+   desk, not an alarm; layout.css loads before dashboard.css, so the badge's
+   base look still comes from .patient-status-badge there. */
+.patient-status-badge.patient-status-badge--email {
+    background-color: var(--bg-subtle);
+    color: var(--color-warning);
+}
+
+/* On Patient History: a record the front desk made with no online account, and
+   a consent not signed yet (2026-10-01, client revision 16). */
+.patient-status-badge.patient-status-badge--record {
+    background-color: var(--bg-subtle);
+    color: var(--text-secondary);
+}
+.patient-status-badge.patient-status-badge--consent {
+    background-color: var(--bg-subtle);
+    color: var(--color-warning);
+}

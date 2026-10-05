@@ -1,0 +1,62 @@
+/* Clinic workflow: scoped to the signed-in portal. */
+.queue-layout, .queue-main, .intake-card { width: 100%; min-width: 0; }
+.intake-card { max-width: 800px; }
+.intake-card > label { display: block; margin-top: 24px; font-weight: 600; }
+.inline-patient-field { border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); overflow: hidden; margin: 8px 0 20px; }
+.inline-patient-field:focus-within { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.inline-patient-field.is-selected { border-color: var(--color-teal); background: var(--color-teal-light); }
+ .inline-patient-field > input { width: 100%; box-sizing: border-box; font-size: 18px; padding: 16px; margin: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.inline-patient-field > input:focus { outline: none; box-shadow: none; }
+.patient-suggestions { max-height: 300px; overflow-y: auto; border-top: 1px solid var(--border-color); }
+.patient-suggestions[hidden] { display: none !important; }
+.patient-suggestion { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; min-height: 60px; padding: 12px 16px; text-align: left; border: 0; border-bottom: 1px solid var(--border-color); border-radius: 0; background: var(--bg-card); color: var(--text-primary); box-shadow: none; }
+.patient-suggestion span { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--text-secondary); overflow-wrap: anywhere; }
+.patient-suggestion:hover, .patient-suggestion[aria-selected="true"] { background: var(--color-teal-light, #eaf4f3); color: var(--text-primary); }
+.inline-patient-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+.inline-patient-description { flex: 1 1 230px; min-width: 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); overflow-wrap: anywhere; }
+.app-layout .inline-patient-controls button { min-height: 44px; padding: 10px 16px; }
+.inline-patient-controls [hidden], .patient-workspace-actions [hidden] { display: none !important; }
+.intake-actions, .intake-new { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.app-layout .intake-actions button { min-height: 48px; flex: 1 1 210px; }
+.intake-actions button:disabled { opacity: .45; cursor: not-allowed; }
+.intake-new { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 14px; color: var(--text-secondary); }
+.patient-workspace-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.app-layout .patient-workspace-actions button { min-height: 48px; }
+.patient-more { min-width: 140px; }
+.patient-more summary { padding: 12px; cursor: pointer; font-weight: 600; min-height: 44px; }
+.patient-more__items { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+.stock-bulk { padding: 16px; margin: 16px 0; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 12px; }
+.stock-bulk__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.app-layout .stock-bulk__actions button { min-height: 48px; }
+.stock-bulk label, .stock-select { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+.stock-bulk input[type=checkbox], .stock-select input[type=checkbox] { width: 24px; height: 24px; flex: 0 0 24px; margin: 0; accent-color: var(--color-accent); }
+.stock-select { align-self: start; }
+.stock-bulk__summary { white-space: pre-line; line-height: 1.7; font-size: 14px; margin: 12px 0 0; }
+.stock-bulk__result { white-space: pre-line; }
+.svc-delete { color: var(--color-danger, #b42318) !important; }
+#dentist-layout .queue-card { padding: 20px; gap: 16px; }
+#dentist-layout .queue-card__name { font-size: 18px; }
+#dentist-layout .queue-card__svc, #dentist-layout .queue-card__meta { font-size: 14px; line-height: 1.6; }
+#dentist-layout .queue-card__actions button { min-height: 48px; padding: 12px 18px; }
+@media (max-width: 900px) {
+    #dentist-layout input, #dentist-layout select, #dentist-layout textarea,
+    #tab-staff-intake input, #modal-clinic-book input, #modal-clinic-book select { font-size: 16px; }
+    #dentist-layout .ph-toolbar { flex-direction: column; align-items: stretch; }
+    #dentist-layout .ph-toolbar__actions { justify-content: flex-start; }
+    #dentist-layout .ph-toolbar button, #dentist-layout .ph-section button,
+    #dentist-layout .stock-req button { min-height: 44px; }
+    #dentist-layout .queue-card__actions { width: 100%; margin-left: 0; justify-content: flex-start; }
+    #dentist-layout .queue-card__record { flex: 1; }
+    .patient-workspace-actions { position: sticky; top: 0; z-index: 5; padding: 10px 0; background: var(--bg-card); }
+    .patient-workspace-actions button { flex: 1 1 120px; }
+    .stock-req--approval { align-items: start; }
+    .stock-bulk__actions { align-items: stretch; }
+}
+@media (max-width: 480px) {
+    .inline-patient-description { flex-basis: 100%; }
+    .inline-patient-field > input { font-size: 16px; }
+    .intake-new button { width: 100%; }
+    #dentist-layout .queue-card { padding: 14px; }
+    #dentist-layout .queue-card__body { flex-basis: calc(100% - 50px); }
+    .stock-bulk__actions > button { width: 100%; }
+}

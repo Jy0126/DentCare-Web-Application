@@ -1,0 +1,744 @@
+/* ===========================================================================
+   DentCare — Oral Health Care module
+   ---------------------------------------------------------------------------
+   The patient's Oral Care Guides tab and the flash-tip banner.
+
+   The reminder settings and toothbrush tracker that used to live here were
+   removed on 2026-08-30 — those features moved to the Flutter mobile app.
+   See the note at the foot of this file.
+
+   ── EVERY CLASS HERE IS PREFIXED oc- ──────────────────────────────────────
+   All stylesheets in this project load on every page, so a class name is
+   global whether it was meant to be or not. `.visit-section` existing in both
+   dashboard.css and landing.css already cost this project an hour of
+   debugging. `oc-` was checked against css/, js/ and templates/ before any of
+   it was written and appears nowhere else.
+
+   No token is redefined here. Colours, spacing and radii all come from
+   base.css, so this module follows the rest of the system when those change.
+
+   ── REDESIGNED 2026-09-09 ──────────────────────────────────────────────────
+   The module was carrying two generic-AI-page tells: a colored left border on
+   every callout, and every section built from the same icon-plus-heading-plus
+   -text card repeated at different counts. Both are gone. Callouts now use
+   type weight and size for emphasis instead of a tinted box; the "typical day"
+   section is sized to what each part of the day actually needs (Night is the
+   full routine and gets the room, Morning/After-meals are short and share an
+   even split) instead of three identical boxes. Photography (real patient
+   guide photos, not stock) now carries the day-of-operations, technique,
+   product and clinic-note sections; decorative per-panel icons were removed
+   in favor of it — the "guide-card" numbers were already icon-free (see the
+   note above .guide-number in dashboard.css) and that reasoning was extended
+   here rather than fought.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Flash tip banner
+   ---------------------------------------------------------------------------
+   Sits above the patient's tab content. Deliberately quiet — a pale teal
+   band, one line of text, a dismiss button. It is a passing suggestion, not
+   an alert, and styling it like a warning would make ten of these a day feel
+   like ten problems.
+   --------------------------------------------------------------------------- */
+
+.oc-flash {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    background-color: var(--color-teal-light);
+    border: 1px solid color-mix(in srgb, var(--color-teal) 30%, transparent);
+    border-radius: var(--radius-m);
+    padding: 12px var(--space-s);
+    margin-bottom: var(--space-s);
+}
+
+.oc-flash__icon {
+    flex-shrink: 0;
+    color: var(--color-teal-hover);
+    margin-top: 1px;
+}
+
+.oc-flash__text {
+    flex: 1;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.oc-flash__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 0 4px;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color var(--transition-clean);
+}
+
+.oc-flash__close:hover {
+    color: var(--text-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   Persistent disclaimer
+   ---------------------------------------------------------------------------
+   Repeated at the top and bottom of the guide, and it stays repeated. This is
+   health-adjacent content on a clinic's own system, and a patient who lands
+   mid-page from a link must not be able to read a full screen of prescriptive
+   advice without meeting the line that says it is general guidance.
+
+   No box, no tinted background, no eyebrow label above it: weight on the
+   opening words carries the emphasis, a plain hairline separates it from the
+   content below.
+   --------------------------------------------------------------------------- */
+
+.oc-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0 0 var(--space-m);
+    margin: 0 0 var(--space-m);
+    border-bottom: 1px solid var(--border-color-light);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.oc-disclaimer .icon {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.oc-disclaimer strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.oc-disclaimer--foot {
+    border-bottom: none;
+    border-top: 1px solid var(--border-color-light);
+    padding: var(--space-m) 0 0;
+    margin: var(--space-m) 0 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Section scaffolding
+   --------------------------------------------------------------------------- */
+
+.oc-section {
+    margin-top: var(--space-m);
+}
+
+.oc-section__title {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+
+.oc-section__lede {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-s);
+    max-width: 68ch;
+}
+
+/* ---------------------------------------------------------------------------
+   The guide photo, full width above the sequence
+   --------------------------------------------------------------------------- */
+
+.oc-order-figure {
+    aspect-ratio: 21 / 8;
+    overflow: hidden;
+    border-radius: var(--radius-l);
+    margin-bottom: var(--space-m);
+    position: relative;
+}
+
+.oc-order-figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(.95) contrast(1.03);
+}
+
+.oc-order-figure::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(16, 66, 95, .38) 0%, transparent 55%);
+}
+
+@media (max-width: 560px) {
+    .oc-order-figure { aspect-ratio: 16 / 9; }
+}
+
+/* ---------------------------------------------------------------------------
+   Order of operations: Floss -> Brush -> Mouthwash
+   ---------------------------------------------------------------------------
+   Laid out as three numbered steps with a moving arrow between them, because
+   the sequence IS the content here. A plain bulleted list would lose the one
+   thing this section exists to say.
+
+   The numbers carry the hierarchy now, not a colored top rail — a rail on
+   every card is the single most recognisable "built by an AI" tell there is,
+   and it added nothing the number wasn't already saying.
+   --------------------------------------------------------------------------- */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE ROUTINE — Floss, then Brush, then Mouthwash
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Restored as three cards joined by arrows (clinic request, 2026-09-14). The
+   5 September version read better than the vertical list that replaced it:
+   the sequence IS the content, and a row of steps with arrows between them
+   says "this, then this, then this" before a word is read.
+
+   What changed from the old version:
+   - No coloured rail across the top of each card. The number sits in a soft
+     round badge instead, so the hierarchy comes from the number, not a bar.
+   - Soft 14px cards on a hairline border, and one shadow tier on hover.
+   - On a phone the cards stack and the arrows turn to point down, so step
+     three can never drop onto its own line and read as an afterthought.
+
+   The effect: when the section first scrolls into view the cards appear one
+   after another, each arrow following its card, and the arrows nudge forward
+   twice to show the direction. Hovering the routine nudges them again. It all
+   runs once, never forever, and is off entirely under reduced motion.
+   Driven by armOrderReveal() in js/oral-care.js; with no JavaScript every card
+   simply shows.
+*/
+
+.oc-order {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr) 32px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+    margin: var(--space-m) 0;
+}
+
+.oc-order__step {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px 20px 22px;
+    transition: transform .35s cubic-bezier(.16, 1, .3, 1),
+                box-shadow .35s cubic-bezier(.16, 1, .3, 1),
+                opacity .5s cubic-bezier(.16, 1, .3, 1);
+}
+
+.oc-order__step:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 1px rgba(16, 66, 95, .03),
+                0 2px 6px rgba(16, 66, 95, .05),
+                0 12px 24px -10px rgba(16, 66, 95, .18);
+}
+
+.oc-order__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background-color: var(--color-teal-light);
+    color: var(--color-teal-hover);
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.oc-order__name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.oc-order__why {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.oc-order__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-teal);
+    transition: opacity .45s cubic-bezier(.16, 1, .3, 1),
+                transform .45s cubic-bezier(.16, 1, .3, 1);
+}
+
+.oc-order__arrow .icon {
+    width: 22px;
+    height: 22px;
+}
+
+/* ── The sequence reveal ─────────────────────────────────────────────────────
+   .oc-order--armed is added by script only when the browser can observe the
+   section and the patient has not asked for reduced motion, so the hidden
+   starting state can never strand the content invisible. */
+.oc-order--armed .oc-order__step {
+    opacity: 0;
+    transform: translateY(14px);
+}
+
+.oc-order--armed .oc-order__arrow {
+    opacity: 0;
+    transform: translateX(-8px);
+}
+
+.oc-order--armed.is-in .oc-order__step,
+.oc-order--armed.is-in .oc-order__arrow {
+    opacity: 1;
+    transform: none;
+}
+
+/* Card, arrow, card, arrow, card: each one 140ms after the one before. */
+.oc-order--armed.is-in > :nth-child(2) { transition-delay: 140ms; }
+.oc-order--armed.is-in > :nth-child(3) { transition-delay: 280ms; }
+.oc-order--armed.is-in > :nth-child(4) { transition-delay: 420ms; }
+.oc-order--armed.is-in > :nth-child(5) { transition-delay: 560ms; }
+
+/* Once every card is in place, hover lifts respond immediately again. */
+.oc-order--armed.is-settled > * { transition-delay: 0ms; }
+
+@keyframes oc-nudge {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(5px); }
+}
+
+.oc-order.is-in .oc-order__arrow .icon {
+    animation: oc-nudge .9s cubic-bezier(.45, 0, .55, 1) 2;
+    animation-delay: 900ms;
+}
+
+.oc-order:hover .oc-order__arrow .icon {
+    animation: oc-nudge .9s cubic-bezier(.45, 0, .55, 1) 2;
+}
+
+/* ── Phones and narrow panels: stack, arrows point down ─────────────────── */
+@media (max-width: 760px) {
+    .oc-order {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .oc-order__arrow {
+        height: 28px;
+    }
+
+    .oc-order__arrow .icon {
+        transform: rotate(90deg);
+    }
+
+    @keyframes oc-nudge-down {
+        0%, 100% { transform: rotate(90deg) translateX(0); }
+        50%      { transform: rotate(90deg) translateX(5px); }
+    }
+
+    .oc-order.is-in .oc-order__arrow .icon,
+    .oc-order:hover .oc-order__arrow .icon {
+        animation-name: oc-nudge-down;
+    }
+
+    .oc-order--armed .oc-order__arrow {
+        transform: translateY(-6px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .oc-order__step,
+    .oc-order__arrow { transition: none; }
+    .oc-order__step:hover { transform: none; }
+    .oc-order .oc-order__arrow .icon { animation: none !important; }
+}
+
+/* The "don't stress about the order" note. The ADA's own position is that all
+   three happening daily matters more than their sequence, and a guide that
+   only preached the ideal order would leave a patient who rinses first
+   thinking they had been doing it wrong.
+
+   No box, no background tint: the opening line is set larger and bolder as
+   its own line, the way a pull-quote is, and the supporting sentence follows
+   in normal body weight underneath. */
+.oc-order-note {
+    margin-top: var(--space-m);
+    max-width: 56ch;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.oc-order-note strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--brand-ink);
+    margin-bottom: 5px;
+    letter-spacing: -.005em;
+}
+
+/* ---------------------------------------------------------------------------
+   The day, at its own pace
+   ---------------------------------------------------------------------------
+   Night is the full routine ("the thorough one") and gets a featured band;
+   Morning and After-meals are genuinely short, so they share an even split
+   underneath instead of being stretched into three identical boxes.
+   --------------------------------------------------------------------------- */
+
+.oc-day-plan {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+.oc-day-plan__feature {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-l);
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* The lift is gone here too. It was the same gesture on every panel, which
+   made it decoration rather than feedback — and on a phone, where this page is
+   mostly read, a hover state never fires at all. */
+
+.oc-day-plan__feature .oc-panel__figure {
+    aspect-ratio: 16 / 9;
+}
+
+.oc-day-plan__pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-s);
+}
+
+@media (max-width: 640px) {
+    .oc-day-plan__pair { grid-template-columns: 1fr; }
+}
+
+/* ---------------------------------------------------------------------------
+   Photo-led panels
+   ---------------------------------------------------------------------------
+   A panel is photo-led when a guide photo exists for it (oc-panel__figure);
+   panels with no matching photo (most of "Timing details" and "Why flossing
+   is worth it") are text-only and carry exactly the same padding and border
+   through oc-panel__body, so the grid stays visually consistent either way.
+   --------------------------------------------------------------------------- */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REFERENCE SECTIONS — a leaflet's back page, not a wall of cards
+   ═══════════════════════════════════════════════════════════════════════════
+
+   This page used to render every one of its fifteen panels identically: same
+   border, same radius, same shadow, same width, same hover lift. Uniformity
+   like that is not neutral. It tells the reader that nothing here matters more
+   than anything else, so the thing she actually needs — the nightly routine —
+   sat with exactly the weight of a footnote about mouthwash labels.
+
+   So the boxes are gone from anywhere they were not earning their keep, and
+   the remaining weight is spent on the routine itself (.oc-order below).
+
+   Structure now follows the content rather than a blanket rule:
+
+     a panel WITH a photo      keeps an edge, because an image needs one to
+                               sit against or it bleeds into the page
+     a panel with only text    loses the box and becomes a term and its
+                               explanation, separated by a rule
+
+   Expressed with :has() so it keys off what a panel actually contains, and no
+   markup had to be relabelled to suit the stylesheet. Browsers without :has()
+   simply get the text treatment throughout, which degrades honestly.
+*/
+
+.oc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-s) var(--space-l);
+}
+
+/* Text-only: no container at all. */
+.oc-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 14px 0;
+    border-top: 1px solid var(--border-color-light);
+    background: none;
+}
+
+/* A measure, so an explanation does not run the full width of a desktop and
+   become hard to track back to the start of the next line. */
+.oc-panel > p { max-width: 68ch; }
+
+/* With a photo: give it an edge to hold the image, and let it sit on the page
+   rather than float above it. No lift on hover — fifteen things that all rise
+   when the mouse passes is motion for its own sake, and on the phone where
+   most of these are read, it never fires at all. */
+.oc-grid:has(.oc-panel__figure) { gap: var(--space-s); }
+
+.oc-panel:has(.oc-panel__figure) {
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    overflow: hidden;
+    background-color: var(--bg-card);
+}
+
+.oc-panel__figure {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.oc-panel__figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(.35) saturate(.85) contrast(1.05);
+}
+
+.oc-panel__figure::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--brand-ink);
+    mix-blend-mode: multiply;
+    opacity: .16;
+}
+
+/* A grid row stretches every card to the tallest sibling's height by
+   default; without this, a photo-less panel next to a photo-led one ends
+   up with dead space at the bottom instead of using it. flex:1 lets the
+   body claim that space, and a closing note (oc-panel-note) can anchor to
+   the bottom of it with margin-top:auto instead of floating mid-card. */
+/* No padding on a text-only panel: the rule above it is the separator now,
+   and inset text would float away from the rule and lose the connection. */
+.oc-panel__body {
+    padding: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Padding comes back inside a panel that has a photo, where there is an edge
+   for the text to be inset from. */
+.oc-panel:has(.oc-panel__figure) .oc-panel__body { padding: var(--space-s); }
+
+.oc-panel__title {
+    font-family: var(--font-heading);
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+
+.oc-panel__meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 10px;
+}
+
+.oc-steps {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.oc-steps li {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.oc-steps li:last-child {
+    margin-bottom: 0;
+}
+
+.oc-steps strong {
+    color: var(--text-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   A signs list
+   ---------------------------------------------------------------------------
+   Used by "Know your gums" for the panel with no matching photo, so it still
+   fills the card the way its photo-led sibling does: each sign carries its
+   own numeral, label and line, the same numeral treatment as the order-of-
+   operations steps above, rather than a plain bullet trailing off.
+   --------------------------------------------------------------------------- */
+
+.oc-signs {
+    margin-top: 6px;
+}
+
+.oc-signs__item {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    padding: 13px 0;
+}
+
+.oc-signs__item + .oc-signs__item {
+    border-top: 1px solid var(--border-color-light);
+}
+
+.oc-signs__num {
+    flex: 0 0 auto;
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-teal-light);
+    -webkit-text-stroke: 1px var(--color-teal);
+}
+
+.oc-signs__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.oc-signs__label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.oc-signs__body p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* A closing note inside a panel — same weight-led emphasis as oc-order-note,
+   scoped to sit inside a panel's own padding instead of the whole section. */
+.oc-panel-note {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.oc-panel-note strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-teal-hover);
+    margin-bottom: 4px;
+    letter-spacing: -.005em;
+}
+
+/* ---------------------------------------------------------------------------
+   Product guide table (mouthwash types)
+   ---------------------------------------------------------------------------
+   Wrapped in its own scroller. The dashboards are used on a phone at the
+   counter, and a four-column table there must scroll inside its box rather
+   than widening the whole page.
+
+   No solid header band: a quiet uppercase label row on a hairline instead,
+   and a colored dot in front of each type name doubles as the row's legend.
+   --------------------------------------------------------------------------- */
+
+.oc-table-wrap {
+    overflow-x: auto;
+    margin-top: var(--space-s);
+}
+
+.oc-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 460px;
+}
+
+.oc-table th {
+    text-align: left;
+    padding: 0 var(--space-s) 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.oc-table td {
+    text-align: left;
+    padding: 11px var(--space-s);
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color-light);
+    color: var(--text-secondary);
+    vertical-align: top;
+}
+
+.oc-table td:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.oc-table tr:last-child td {
+    border-bottom: none;
+}
+
+.oc-table__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.oc-table__dot--fluoride { background-color: var(--color-teal); }
+.oc-table__dot--antimicrobial { background-color: var(--color-accent); }
+.oc-table__dot--cosmetic { background-color: var(--text-muted); }
+.oc-table__dot--alcohol-free {
+    background: none;
+    border: 1.5px solid var(--text-muted);
+    box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------------
+   REMOVED 2026-08-30 — reminder settings and the toothbrush tracker
+   ---------------------------------------------------------------------------
+   Both features moved to the Flutter mobile app, so ~200 lines of rules for
+   the on/off switch, the two time fields, the delivery note and the 90-day
+   progress bar had no markup left to style.
+
+   Deleted rather than commented out. Dead CSS in this project is global — all
+   the stylesheets load on every page — so a rule kept "just in case" is a name
+   that can still collide with a future one.
+
+   The class names are recorded here so a future reader searching for them
+   finds this note rather than nothing:
+     .oc-setting-row .oc-setting-title .oc-setting-note
+     .oc-switch .oc-switch__track .oc-switch__text
+     .oc-time-grid .oc-time-grid--off .oc-time-field .oc-time-hint
+     .oc-delivery-note
+     .oc-track .oc-track__head .oc-track__headline .oc-track__cycle
+     .oc-track__bar .oc-track__fill .oc-track__detail
+     .oc-track--soon .oc-track--overdue .oc-track--unknown
+   --------------------------------------------------------------------------- */

@@ -1,0 +1,2998 @@
+/*
+ * DentCare – Dashboard View Styles
+ */
+
+/* 1. Metrics row
+   ---------------------------------------------------------------------------
+   The .stats-grid / .stat-card / .stat-icon block that lived here is gone. It
+   drew three identical cards, each with a 44px tile behind its icon tinted
+   accent, teal, accent by nth-child, and nothing in the app uses those class
+   names any more. The replacement is .metrics at the end of this file, which
+   follows the same shape as .money-summary so the two screens agree.
+*/
+
+/* 2. Calendar / Daily List Component */
+.dashboard-flex-row {
+    display: flex;
+    gap: var(--space-m);
+    flex-wrap: wrap;
+}
+
+/* Let the stock table scroll inside its card so the add form can sit beside it
+   on a 1600px display with the portal sidebar present. */
+.inventory-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(310px, .8fr); align-items: start; }
+.inventory-layout > .card { min-width: 0 !important; width: 100%; }
+@media (max-width: 1150px) {
+    .inventory-layout { grid-template-columns: minmax(0, 1fr); }
+    .inventory-layout > .card.flex-1 { max-width: 720px; }
+}
+
+.slot-repair {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 18px 0 20px;
+    padding: 17px 18px;
+    border: 1px solid #d5e4e2;
+    border-radius: 12px;
+    background: #f4faf9;
+}
+.slot-repair__copy { min-width: 0; }
+.slot-repair__copy strong { display: block; color: var(--text-primary); font-size: 14px; }
+.slot-repair__copy p { margin: 4px 0 0; color: var(--text-secondary); font-size: 12.5px; line-height: 1.45; }
+.slot-repair__button { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.slot-repair__button .icon { width: 17px; height: 17px; }
+.schedule-past:not(:empty) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 15px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-subtle);
+}
+.schedule-past strong, .schedule-past small { display: block; }
+.schedule-past strong { color: var(--text-primary); font-size: 13px; }
+.schedule-past small { margin-top: 3px; color: var(--text-secondary); font-size: 12px; }
+.schedule-past__clear { flex: none; min-height: 40px; }
+@media (max-width: 720px) {
+    .slot-repair, .schedule-past:not(:empty) { align-items: stretch; flex-direction: column; }
+    .slot-repair__button, .schedule-past__clear { justify-content: center; width: 100%; }
+}
+
+.dashboard-flex-col {
+    flex: 1;
+    min-width: 320px;
+}
+
+.calendar-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    box-shadow: var(--shadow-soft);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-s);
+}
+
+/* List Items (Appointments, Invoices, Stock Items) */
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-s);
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--radius-s);
+    margin-bottom: var(--space-xs);
+    background-color: #ffffff;
+    transition: var(--transition-clean);
+}
+
+.list-item:hover {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.list-item-main {
+    display: flex;
+    flex-direction: column;
+}
+
+.list-item-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.list-item-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.list-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Patient Guide Card Styles */
+/* Fixed at 3 columns rather than auto-fit: six cards is a natural 3-and-3,
+   and auto-fit was packing as many 280px columns as a wide screen allowed
+   (5, with the 6th orphaned onto its own row) instead of respecting that. */
+.guide-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-s);
+    margin-top: var(--space-m);
+}
+
+@media (max-width: 860px) {
+    .guide-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .guide-card-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.guide-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-l);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.guide-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Photographed 2026-09-09 — a real guide photo per card instead of a flat
+   icon tile. The card stays numbered rather than iconed either way; see the
+   note on .guide-number below. */
+.guide-card__figure {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    position: relative;
+}
+
+.guide-card__figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(.35) saturate(.85) contrast(1.05);
+}
+
+.guide-card__figure::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--brand-ink);
+    mix-blend-mode: multiply;
+    opacity: .16;
+}
+
+.guide-card__body {
+    padding: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+}
+
+/* Guides are numbered rather than iconed — a toothbrush or a spool of
+   floss is not readable as a 26px line drawing, and a number never is
+   mistaken for something else. */
+.guide-number {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-teal);
+    margin-bottom: 2px;
+}
+
+.guide-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.guide-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+/* Search bar styling */
+.search-container {
+    position: relative;
+    margin-bottom: var(--space-m);
+}
+
+.search-input {
+    padding-left: 40px !important;
+}
+
+.search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-icon .icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Stock Alert Notification Bar */
+.alert-bar {
+    background-color: var(--color-danger-light);
+    border: 1px solid #f0cdc7;
+    color: var(--color-danger);
+    padding: 11px var(--space-s);
+    border-radius: var(--radius-s);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: var(--space-m);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+/* ==========================================
+   7. Medical History Tab – Premium Redesign
+   ========================================== */
+
+/* Hero Header */
+.mh-hero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--brand-ink);
+    border-radius: var(--radius-m);
+    padding: var(--space-m) var(--space-l);
+    margin-bottom: var(--space-m);
+    color: #ffffff;
+    position: relative;
+}
+
+.mh-hero-text {
+    position: relative;
+    z-index: 1;
+}
+
+.mh-hero-text h2 {
+    color: #ffffff;
+    font-size: 24px;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.mh-hero-text p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    margin: 0;
+    max-width: 480px;
+    line-height: 1.5;
+}
+
+.mh-hero-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 14px 22px;
+    border-radius: var(--radius-s);
+    position: relative;
+    z-index: 1;
+}
+
+.mh-hero-icon {
+    font-size: 32px;
+}
+
+.mh-hero-badge-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Health Status Strip */
+.mh-status-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-s);
+    margin-bottom: var(--space-m);
+}
+
+.mh-status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    padding: 15px 18px;
+    transition: border-color var(--transition-clean);
+}
+
+.mh-status-item:hover {
+    border-color: var(--color-accent);
+}
+
+.mh-status-emoji {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.mh-status-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.mh-status-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+}
+
+.mh-status-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Section Cards */
+.mh-form-panel,
+.mh-procedures-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.mh-section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    transition: var(--transition-clean);
+}
+
+.mh-section-card:hover {
+    border-color: var(--border-color);
+}
+
+.mh-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color-light);
+    background-color: var(--bg-subtle);
+}
+
+.mh-section-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-s);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.mh-icon-green {
+    background-color: var(--color-success-light);
+}
+
+.mh-icon-amber {
+    background-color: var(--color-warning-light);
+}
+
+.mh-icon-blue {
+    background-color: var(--color-accent-light);
+}
+
+.mh-icon-teal {
+    background-color: var(--color-teal-light);
+}
+
+.mh-icon-purple {
+    background-color: #eeecf7;
+}
+
+.mh-section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 2px 0;
+}
+
+.mh-section-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.mh-section-body {
+    padding: 20px 24px;
+}
+
+/* Question Rows */
+.mh-question-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color-light);
+    border-radius: var(--radius-s);
+    margin-bottom: 4px;
+    transition: var(--transition-clean);
+}
+
+.mh-question-row:hover {
+    background-color: #f8fafc;
+}
+
+.mh-question-row-last {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.mh-question-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.mh-q-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.mh-detail-input {
+    padding: 0 16px 12px 16px;
+    animation: mhSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mh-detail-input input {
+    margin-top: 4px;
+    background-color: #f8fafc;
+    border: 1px dashed var(--border-color);
+}
+
+.mh-detail-input input:focus {
+    border-style: solid;
+}
+
+@keyframes mhSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Allergy & Condition Grids */
+.mh-allergy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-xs);
+}
+
+.mh-condition-category {
+    margin-bottom: var(--space-m);
+}
+
+.mh-condition-category:last-child {
+    margin-bottom: 0;
+}
+
+.mh-category-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mh-category-label span {
+    font-size: 16px;
+}
+
+.mh-condition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-xs);
+}
+
+/* Improved checkbox cards in medical history context */
+.mh-section-card .checkbox-card {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: var(--radius-s);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+}
+
+.mh-section-card .checkbox-card:hover {
+    border-color: var(--color-accent);
+}
+
+.mh-section-card .checkbox-card.checked {
+    background-color: var(--color-accent-light);
+    border-color: var(--color-accent);
+}
+
+.mh-section-card .checkbox-card span {
+    font-weight: 500;
+}
+
+/* Save Button */
+.mh-save-btn {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    background-color: var(--color-accent);
+    border-radius: var(--radius-s);
+    transition: background-color var(--transition-clean);
+}
+
+.mh-save-btn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+/* Empty State for Procedures */
+.mh-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 24px 0;
+}
+
+.mh-empty-icon {
+    font-size: 48px;
+    opacity: 0.5;
+}
+
+.mh-empty-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.mh-empty-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 320px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   8. MediApp-Inspired Dashboard Layout & Widgets
+   ========================================== */
+
+.dashboard-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-m);
+    gap: var(--space-s);
+}
+
+.dashboard-search-wrapper {
+    position: relative;
+    width: 320px;
+}
+
+.dashboard-search-wrapper input {
+    padding: 10px 16px 10px 42px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    font-size: 14px;
+    margin: 0;
+}
+
+.dashboard-search-wrapper .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    color: var(--text-muted);
+}
+
+.medi-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: var(--space-m);
+}
+
+@media (max-width: 1100px) {
+    .medi-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 1. Parameters Chart Card */
+.parameters-card {
+    background: #ffffff;
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: var(--space-m);
+}
+
+.card-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-s);
+}
+
+.card-top-row h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.card-subtext {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 2px 0 0 0;
+}
+
+.filter-pills-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: var(--space-m);
+}
+
+.filter-pill {
+    padding: 6px 16px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition-clean);
+}
+
+.filter-pill:hover {
+    background: #e2e8f0;
+}
+
+.filter-pill.active {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+.filter-select-pill {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    margin: 0;
+    width: auto;
+}
+
+.circle-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: var(--transition-clean);
+    padding: 0;
+}
+
+.circle-icon-btn:hover {
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+}
+
+/* 2. Doctor Appointment Cards */
+.medi-appointments-card {
+    background: #ffffff;
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.appointment-item-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: var(--radius-m);
+    margin-bottom: var(--space-s);
+    transition: var(--transition-clean);
+}
+
+.appointment-item-card.green-theme {
+    background: #f0fdf4;
+    border: 1px solid #dcfce7;
+}
+
+.appointment-item-card.blue-theme {
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+}
+
+.appointment-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.doctor-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    object-fit: cover;
+    background: #cbd5e1;
+}
+
+.doctor-info h4 {
+    margin: 0 0 2px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.doctor-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.doctor-time {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.btn-full-dark {
+    width: 100%;
+    padding: 14px;
+    border-radius: 999px;
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: var(--transition-clean);
+    margin-top: var(--space-s);
+}
+
+.btn-full-dark:hover {
+    background: var(--color-accent-hover);
+}
+
+/* 3. Mini Calendar Widget */
+.widget-card {
+    background: #ffffff;
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: var(--space-m);
+}
+
+.calendar-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.calendar-mini-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    text-align: center;
+}
+
+.calendar-day-head {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding-bottom: 6px;
+}
+
+.calendar-day-num {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+}
+
+.calendar-day-num.active {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.calendar-day-num.has-dot::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-accent);
+}
+
+/* 4. Medication / Treatment Tracker Widget */
+.medication-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-m);
+    margin-bottom: 10px;
+}
+
+.medication-item.blue {
+    background: #eff6ff;
+}
+
+.medication-item.green {
+    background: #f0fdf4;
+}
+
+.medication-item.yellow {
+    background: #fefce8;
+}
+
+.medication-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.medication-info h5 {
+    margin: 0 0 2px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.medication-info p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* 5. Sidebar Promo Box */
+.sidebar-promo-card {
+    background-color: var(--color-teal-light);
+    border: 1px solid #cde9e6;
+    border-radius: var(--radius-m);
+    padding: 20px;
+    margin-top: auto;
+    margin-bottom: var(--space-s);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-promo-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.sidebar-promo-card p {
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    margin: 0;
+}
+
+
+
+/* ---------------------------------------------------------------------------
+   INVENTORY — stock movement history
+   Rendered by renderMovementRow() in js/inventory.js.
+   ------------------------------------------------------------------------ */
+
+.card-hint {
+    margin: -4px 0 var(--space-s);
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+/* What was billed today, above the Bills table (renderBillingToday). */
+.billing-today {
+    margin: 0 0 var(--space-s);
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.billing-today__earlier {
+    display: inline-block;
+    margin-left: var(--space-xs);
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.table-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.adjust-preview {
+    margin: 0 0 var(--space-s);
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-subtle);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-primary);
+}
+
+.adjust-preview__warn {
+    color: var(--color-warning);
+}
+
+/* ── Take-outs approved by Dr. Gapit (2026-10-01) ───────────────────────────
+   js/stock-requests.js. A take-out filed by the front desk waits for her
+   approval; these are the note in the Adjust dialog, the count beside an
+   item, the staff panel and her Stock Approvals list. Plain rows on the
+   page's own surfaces: no tinted cards, no side bars. */
+.adjust-approval-note {
+    margin: 0 0 var(--space-s);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.inventory-waiting {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-warning);
+    white-space: nowrap;
+}
+
+.inventory-requests h3 { margin: 0 0 4px; }
+
+.stock-req-heading {
+    margin: var(--space-s) 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.stock-req-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.stock-req {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13.5px;
+}
+
+.stock-req:last-child { border-bottom: 0; }
+
+.stock-req__main {
+    flex: 1 1 260px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.stock-req__note,
+.stock-req__stock {
+    display: block;
+    margin-top: 2px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+}
+
+.stock-req__stock { font-variant-numeric: tabular-nums; }
+
+.stock-req__stock.is-short {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.stock-req__meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.stock-req__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.muted {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.movement-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.movement {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.movement:last-child {
+    border-bottom: 0;
+}
+
+/* The signed number, sized so a column of them lines up */
+.movement__change {
+    flex-shrink: 0;
+    min-width: 46px;
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.movement__change.is-in {
+    color: var(--color-success);
+}
+
+.movement__change.is-out {
+    color: var(--color-danger);
+}
+
+.movement__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.movement__reason {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.movement__note {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.movement__meta {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Running balance after this movement */
+.movement__balance {
+    flex-shrink: 0;
+    align-self: center;
+    min-width: 40px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: right;
+}
+
+
+/* ===========================================================================
+   DENTAL RECORD CARD
+   ---------------------------------------------------------------------------
+   Mirrors the clinic's paper card: one column per tooth position with the
+   upper tooth above the lower one, numbers on the outside, and each tooth
+   drawn as a circle split into its five surfaces.
+   =========================================================================== */
+
+.record-card {
+    margin: var(--space-s) 0 var(--space-m);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    background-color: #ffffff;
+    padding: var(--space-s);
+}
+
+/* 16 teeth do not fit a narrow screen, so the card scrolls sideways as a unit
+   rather than the columns wrapping and breaking the pairing. */
+.record-card__scroll {
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.tooth-row {
+    display: flex;
+    justify-content: center;
+    min-width: max-content;
+}
+
+.tooth-row--primary {
+    justify-content: center;
+}
+
+.record-card__primary {
+    margin-top: var(--space-s);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--border-color);
+}
+
+.record-card__label {
+    margin-bottom: 6px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* One column of the card */
+.ct-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 3px;
+    border-right: 1px solid var(--border-color-light);
+}
+
+.ct-cell:last-child {
+    border-right: 0;
+}
+
+.ct__num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+/* ── The tooth ──────────────────────────────────────────────────────────── */
+
+.ct {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.ct:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.ct__svg {
+    width: 56px;
+    height: 56px;
+    display: block;
+}
+
+/* Every surface starts unmarked. Fills are set per surface by JS. */
+.ct__zone {
+    fill: #ffffff;
+    stroke: var(--text-muted);
+    stroke-width: 0.7;
+    transition: fill var(--transition-clean);
+}
+
+.ct:hover .ct__zone {
+    stroke: var(--color-accent);
+}
+
+/* A surface the dentist has marked takes the tooth's condition colour. */
+.ct__zone.is-marked {
+    stroke: var(--text-primary);
+}
+
+/* Whole-tooth conditions, used when no individual surface is marked */
+.ct.is-decayed .ct__zone.is-marked {
+    fill: #fca5a5;
+}
+
+.ct.is-filled .ct__zone.is-marked {
+    fill: #6ee7b7;
+}
+
+/* Each filling type in its own colour (2026-10-01). The values come from
+   FILL_MATERIALS in js/records.js; tools/check-dentition.js holds the two
+   together. A filling with no type recorded keeps the green above. */
+.ct.is-filled.is-fill-lc .ct__zone.is-marked  { fill: #0d9488; }
+.ct.is-filled.is-fill-am .ct__zone.is-marked  { fill: #374151; }
+.ct.is-filled.is-fill-tf .ct__zone.is-marked  { fill: #f97316; }
+.ct.is-filled.is-fill-gic .ct__zone.is-marked { fill: #2563eb; }
+
+.ct.is-crowned .ct__zone.is-marked {
+    fill: #fde047;
+}
+
+.ct.is-bridge .ct__zone.is-marked {
+    fill: #c084fc;
+}
+
+/* Root canal treated (added 2026-09-30, with EXO below). The same blue in the
+   legend, on the palette chip and in the exported card. */
+.ct.is-rct .ct__zone.is-marked {
+    fill: #93c5fd;
+}
+
+/* An extraction (EXO) is a tooth that is gone, so it is drawn exactly as a
+   missing one is. The record still says which of the two it was. */
+.ct.is-missing .ct__zone,
+.ct.is-extracted .ct__zone {
+    fill: #eef1f3;
+    stroke-dasharray: 2 2;
+}
+
+/* Missing teeth get a cross through them, as they are struck out on paper. */
+.ct.is-missing::after,
+.ct.is-extracted::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    background:
+        linear-gradient(to bottom right, transparent 46%, var(--text-muted) 46%, var(--text-muted) 54%, transparent 54%);
+    pointer-events: none;
+}
+
+/* ── The card's letters, in the card's positions ────────────────────────── */
+
+.ct__lbl {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.ct__lbl--top {
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ct__lbl--bottom {
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ct__lbl--left {
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ct__lbl--right {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* ── Patient picker ─────────────────────────────────────────────────────── */
+
+.patient-picker {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+}
+
+.picker-empty {
+    margin: 0;
+    padding: 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+/* One patient. A wide, obvious target — this gets used with gloves on. */
+.picker-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    width: 100%;
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 1px solid var(--border-color-light);
+    border-radius: 0;
+    background: none;
+    text-align: left;
+}
+
+.picker-row:last-child {
+    border-bottom: 0;
+}
+
+.picker-row:hover {
+    background-color: var(--color-accent-light);
+}
+
+.picker-row__name {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.picker-row__meta {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.picker-row__badge {
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: var(--radius-s);
+    background-color: var(--color-teal-light);
+    color: var(--color-teal-hover);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* ── Selected patient strip ─────────────────────────────────────────────── */
+
+.active-pt {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+}
+
+.active-pt__name {
+    margin: 0 0 2px;
+    font-size: 19px;
+}
+
+.active-pt__meta {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.active-pt__flags {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: right;
+}
+
+.active-pt__allergy {
+    color: var(--color-danger);
+}
+
+/* The two buttons on the open-patient card: X-rays, which jumps past the
+   chart to the upload panel, and Change patient. Kept side by side so the
+   card does not grow a second row on a desktop screen. */
+.active-pt__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs, 6px);
+    align-items: flex-start;
+}
+
+/* A section that could not be READ, as against one that is empty.
+   Deliberately not styled as a quiet grey hint: "no treatments logged" and
+   "nobody could open the treatment log" look the same at a glance and mean
+   opposite things, and only one of them is safe to act on. */
+.ph-unreadable {
+    color: var(--color-danger);
+    background-color: var(--color-danger-light, #fdecea);
+    font-weight: 600;
+    text-align: left;
+    line-height: 1.5;
+    padding: var(--space-s);
+    border-radius: var(--radius-s, 4px);
+}
+
+/* ── Surface checkboxes in the tooth dialog ─────────────────────────────── */
+
+.surface-pick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--space-s);
+}
+
+.surface-pick__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: #ffffff;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.surface-pick__item:hover {
+    border-color: var(--color-accent);
+}
+
+.surface-pick__item.is-on {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-light);
+    color: var(--color-accent-hover);
+    font-weight: 600;
+}
+
+.surface-pick__item input {
+    display: none;
+}
+
+.surface-pick__code {
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+/* The O the card prints in the middle of every tooth */
+.ct__o {
+    font-size: 7px;
+    font-weight: 600;
+    fill: var(--text-muted);
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------------------------
+   PATIENT PICKER — sort row, and filling the working area
+   ------------------------------------------------------------------------ */
+
+.picker-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-s);
+    margin-bottom: var(--space-s);
+}
+
+.picker-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* The global select rule stretches to full width and adds vertical margin;
+   inside this row it needs to sit inline next to its label. */
+.picker-sort select {
+    width: auto;
+    min-width: 190px;
+    margin: 0;
+    padding: 7px 10px;
+    font-size: 13px;
+}
+
+.picker-count {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* ── Filling the space below "Select Patient" ────────────────────────────────
+   The panel used to be content-height, leaving most of the screen empty below
+   it. The list now grows into that space and scrolls inside itself, so the
+   page never scrolls just to reach more names.
+
+   Sized against the viewport rather than with flex, because .main-content is
+   a scrolling block and stretching a child inside it is fragile. The subtracted
+   figure is the chrome above the list: page padding, the tab heading, the card
+   padding, the search box and the sort row. */
+.card--picker .patient-picker {
+    height: calc(100vh - 350px);
+    min-height: 220px;
+    max-height: none;
+}
+
+@media (max-width: 1024px) {
+    .card--picker .patient-picker {
+        height: calc(100vh - 380px);
+    }
+}
+
+/* On a phone the sidebar sits across the top, so there is less height to give
+   away — and a list taller than the thumb can reach is worse, not better. */
+@media (max-width: 768px) {
+    .card--picker .patient-picker {
+        height: auto;
+        max-height: 55vh;
+        min-height: 180px;
+    }
+
+    .picker-tools {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .picker-sort {
+        justify-content: space-between;
+    }
+
+    .picker-sort select {
+        flex: 1;
+        min-width: 0;
+        margin-left: 10px;
+    }
+
+    /* Name over meta rather than side by side, so neither gets squeezed. */
+    .picker-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .picker-row__meta {
+        white-space: normal;
+    }
+}
+
+/* ── The record card on small screens ───────────────────────────────────── */
+@media (max-width: 768px) {
+
+    /* 16 columns will never fit a phone, so the card scrolls sideways as one
+       piece — pairing the upper and lower tooth is the point of the layout and
+       wrapping the columns would destroy it. */
+    .record-card {
+        padding: var(--space-xs);
+    }
+
+    .ct {
+        width: 48px;
+        height: 48px;
+    }
+
+    .ct__svg {
+        width: 48px;
+        height: 48px;
+    }
+
+    .active-pt {
+        flex-direction: column;
+    }
+
+    .active-pt__flags {
+        text-align: left;
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   BILLING & THE MATERIALS FIELD
+   ------------------------------------------------------------------------ */
+
+/* Small note under a field, explaining it without a tooltip nobody hovers */
+.field-hint {
+    margin: 2px 0 var(--space-s);
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* The multi-select of materials used. Sized to show a few rows at once so it
+   reads as a list to pick from rather than a box that has to be opened. */
+.materials-select {
+    height: auto;
+    min-height: 140px;
+    padding: 6px;
+}
+
+.materials-select optgroup {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.materials-select option {
+    padding: 4px 6px;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+/* Marks a line on a bill that carries no charge */
+.line-note {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* Voids cannot be read yet (rules not published): said once, under the receipts. */
+.bill-voids-off {
+    margin: var(--space-xs) 0 0;
+    padding: 8px 10px;
+    border: 1px solid color-mix(in srgb, var(--color-warning) 30%, transparent);
+    border-radius: 8px;
+    background-color: var(--color-warning-light);
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.bill-section {
+    margin: var(--space-m) 0 var(--space-xs);
+    font-size: 14px;
+}
+
+.bill-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.bill-table th,
+.bill-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    text-align: left;
+}
+
+/* Add supply item: "Does this item expire?" (js/inventory.js
+   applyInventoryExpiryMode). Two plain choices, each a full touch target. */
+.inv-expires {
+    margin: 0 0 var(--space-s);
+    padding: 0;
+    border: 0;
+}
+
+.inv-expires legend {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.inv-expires__eg {
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.inv-expires__opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 8px 0 0;
+    padding: 0 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background-color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.inv-expires__opt input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.inv-expires__opt:has(input:checked) {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+}
+
+.inv-expires.hidden { display: none; }
+
+/* A voided receipt stays listed, dimmed, so the bill still shows it happened. */
+.bill-table tr.is-voided td {
+    color: var(--text-muted);
+}
+
+/* Keep the two receipt actions separate when the bill dialog gets narrow. */
+.bill-pay-actions__controls {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.bill-pay-actions__controls > button,
+.bill-pay-actions__controls > .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.bill-pay-actions > .line-note { margin-top: 6px; }
+
+.bill-pay-actions .icon {
+    width: 15px;
+    height: 15px;
+}
+
+/* The six-column payment list becomes one receipt card per row inside the
+   narrow bill dialog, with the two controls on the same visible line. */
+@media (max-width: 900px) {
+    .bill-payments,
+    .bill-payments tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .bill-payments thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .bill-payments tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4px 12px;
+        margin-top: 10px;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+    }
+
+    .bill-payments td {
+        display: block;
+        min-width: 0;
+        padding: 2px 0;
+        border: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .bill-payments td:nth-child(5) {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+    }
+
+    .bill-payments td:nth-child(2),
+    .bill-payments td:nth-child(3),
+    .bill-payments td:nth-child(4),
+    .bill-payments td:nth-child(6) {
+        grid-column: 1 / -1;
+    }
+
+    .bill-payments td:nth-child(2)::before { content: "Method: "; }
+    .bill-payments td:nth-child(3)::before { content: "Reference: "; }
+    .bill-payments td:nth-child(4)::before { content: "Received by: "; }
+
+    .bill-payments td.bill-pay-actions {
+        margin-top: 6px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border-color-light);
+    }
+}
+
+@media (max-width: 240px) {
+    .bill-pay-actions__controls {
+        flex-wrap: wrap;
+    }
+}
+
+.bill-table th {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.bill-table .num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.bill-totals {
+    margin: var(--space-s) 0 0;
+    padding: var(--space-s);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-subtle);
+    font-size: 13px;
+}
+
+.bill-totals>div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding: 3px 0;
+}
+
+.bill-totals dt {
+    color: var(--text-secondary);
+}
+
+.bill-totals dd {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.bill-totals__grand {
+    margin-top: 4px;
+    padding-top: 6px !important;
+    border-top: 1px solid var(--border-color);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   COMPLETING A VISIT — charting teeth inside the completion dialog
+   ------------------------------------------------------------------------ */
+
+.completion-add {
+    display: flex;
+    gap: var(--space-s);
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xs);
+    padding: var(--space-s);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-subtle);
+}
+
+.completion-add__field { display: flex; flex-direction: column; }
+
+.completion-add__field label {
+    margin-bottom: 2px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.completion-add__field input,
+.completion-add__field select { margin: 0; }
+
+.completion-add__field input[type="number"] { width: 96px; }
+
+/* The surface checkboxes need the room; everything else stays compact. */
+.completion-add__field--wide { flex: 1 1 260px; min-width: 0; }
+
+.completion-add .surface-pick { margin-bottom: 0; }
+
+/* One tooth already added to this visit */
+.completion-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    font-size: 13px;
+}
+
+.completion-row:last-child { border-bottom: 0; }
+
+.completion-row strong { min-width: 44px; color: var(--color-accent); }
+
+.completion-row button { margin-left: auto; }
+
+#completion-tooth-list { margin-bottom: var(--space-s); }
+
+
+/* ---------------------------------------------------------------------------
+   SETTLING A BILL — the arithmetic, worked out in front of whoever is at the
+   counter rather than in their head.
+   ------------------------------------------------------------------------ */
+
+.payment-maths {
+    margin: 4px 0 var(--space-s);
+    padding: var(--space-s);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-subtle);
+    font-size: 13px;
+}
+
+.payment-maths > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding: 3px 0;
+    color: var(--text-secondary);
+}
+
+.payment-maths__due {
+    margin-top: 4px;
+    padding-top: 6px !important;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-primary) !important;
+    font-size: 14px;
+}
+
+/* The number the patient gets handed back — the one that must not be misread. */
+.payment-maths__change {
+    margin-top: 4px;
+    padding-top: 6px !important;
+    border-top: 1px solid var(--border-color);
+    color: var(--color-success) !important;
+    font-size: 15px;
+}
+
+.payment-maths__left { color: var(--color-warning) !important; }
+
+
+/* ---------------------------------------------------------------------------
+   COMPLETING A VISIT — the Dental Record Card as a working form
+
+   Wide on purpose. The doctor is charting 52 teeth and writing four clinical
+   fields; down a 550px column that meant scrolling away from the chart to
+   type what the chart was about.
+   ------------------------------------------------------------------------ */
+
+.modal-card--wide {
+    max-width: 1140px;
+    width: 96%;
+}
+
+/* The body scrolls, the header and footer stay put, so Save is always reachable
+   without scrolling back down past the whole chart. */
+.modal-card--wide .modal-body {
+    max-height: calc(100vh - 190px);
+    overflow-y: auto;
+}
+
+.visit-section {
+    padding: var(--space-m) 0;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.visit-section:first-of-type { border-top: 0; padding-top: var(--space-s); }
+
+.visit-section__title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+/* Two columns on a desktop, one on a tablet or phone. The clinical fields read
+   better side by side — diagnosis next to findings, treatment next to
+   prescription — because they are written as pairs. */
+.visit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-s) var(--space-m);
+}
+
+.visit-grid textarea { resize: vertical; }
+
+/* ── Prescription rows (2026-09-30) ────────────────────────────────────────
+   One row per medicine: Medicine, Strength, # and Sig, with the usual
+   medicines offered under the Medicine box as it is typed. Hairlines and the
+   form's own field style; nothing here is a new component. */
+
+.rx-editor { margin-top: var(--space-s); }
+
+.rx-editor__title {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.rx-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+
+.rx-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.8fr) minmax(0, 0.7fr) minmax(0, 2.2fr) auto;
+    gap: 8px;
+    align-items: end;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-subtle);
+}
+
+.rx-row__medicine { position: relative; min-width: 0; }
+
+.rx-row__field { display: block; min-width: 0; margin: 0; }
+
+.rx-row__label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.rx-row__field input { width: 100%; margin: 0; }
+
+.rx-row__remove { min-height: 42px; white-space: nowrap; }
+
+/* The suggestions float over the form, so they take the one shadow a floating
+   thing is allowed. The highlighted one is filled, not barred or outlined. */
+.rx-suggest {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 30;
+    min-width: 260px;
+    margin-top: 4px;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-card);
+    box-shadow: var(--shadow-medium);
+}
+
+.rx-suggest__option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+}
+
+.rx-suggest__option.is-active,
+.rx-suggest__option:hover { background-color: var(--color-accent-light); }
+
+.rx-suggest__name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.rx-suggest__sig  { font-size: 12px; color: var(--text-muted); }
+
+@media (max-width: 760px) {
+    .rx-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .rx-row__medicine,
+    .rx-row__field--sig { grid-column: 1 / -1; }
+    .rx-row__remove { grid-column: 1 / -1; justify-self: end; }
+}
+
+/* The "Paper" select beside a Print button (js/print.js). It sits at the left
+   of a dialog's footer, away from the buttons. */
+.modal-footer:has(.print-sheet-slot) {
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 8px;
+}
+
+/* Paper has a row of its own, and the buttons sit together on the row under
+   it. Sharing one row split the two buttons across two lines in a narrow
+   dialog. */
+.print-sheet-slot { flex: 1 1 100%; min-width: 0; }
+
+.modal-footer:has(.print-sheet-slot) button { white-space: nowrap; }
+
+.print-sheet-chooser {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.print-sheet-chooser select {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: 300px;
+    margin: 0;
+    min-height: 42px;
+    font-size: 13px;
+}
+
+@media (max-width: 560px) {
+    /* The footer takes two rows on a phone (Paper, then the buttons), so the
+       body gives up that much height and the whole dialog still fits. */
+    .modal-card:has(.print-sheet-slot) .modal-body { max-height: calc(100vh - 240px); }
+    .print-sheet-chooser select { max-width: none; }
+}
+
+/* ── The palette ───────────────────────────────────────────────────────────
+   Pick a condition and the surfaces, then click teeth. The same gesture as
+   shading the paper card, rather than filling in a form for each tooth. */
+
+.visit-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-m);
+    align-items: flex-start;
+    padding: var(--space-s) var(--space-m);
+    margin-bottom: var(--space-s);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-subtle);
+}
+
+.visit-palette__group { flex: 1 1 280px; min-width: 0; }
+
+.visit-palette__label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.visit-palette__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.visit-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all var(--transition-clean);
+}
+
+.visit-chip::before {
+    content: "";
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, .18);
+    background-color: #f8fafc;
+}
+
+/* The swatch on each chip is the colour that tooth will actually turn, so the
+   palette and the chart cannot tell you two different things. */
+.visit-chip.is-decayed::before { background-color: #fca5a5; }
+.visit-chip.is-filled::before  { background-color: #6ee7b7; }
+.visit-chip.is-crowned::before { background-color: #fde047; }
+.visit-chip.is-missing::before { background-color: #cbd5e1; border-style: dashed; }
+.visit-chip.is-bridge::before  { background-color: #c084fc; }
+.visit-chip.is-extracted::before { background-color: #cbd5e1; border-style: dashed; }
+.visit-chip.is-rct::before { background-color: #93c5fd; }
+
+/* Filling type (LC, AM, TF, GIC): a second row of chips, shown only while
+   Filled is the condition being marked. Since 2026-10-01 each type is drawn in
+   its own colour, so each chip carries that colour as its swatch, like the
+   condition chips above. */
+.visit-chip--material.is-fill-lc::before  { background-color: #0d9488; }
+.visit-chip--material.is-fill-am::before  { background-color: #374151; }
+.visit-chip--material.is-fill-tf::before  { background-color: #f97316; }
+.visit-chip--material.is-fill-gic::before { background-color: #2563eb; }
+.visit-palette__materials {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+.visit-palette__materials .visit-palette__label { margin: 0 4px 0 0; }
+
+.visit-chip:hover { border-color: var(--color-accent); color: var(--text-primary); }
+
+.visit-chip.is-active {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.visit-chip.is-active::before { border-color: rgba(255, 255, 255, .55); }
+
+/* ── Today's marks against what was already there ──────────────────────────
+   Existing conditions are drawn faded; this visit's are drawn solid with a
+   ring. A doctor needs to see the mouth they are working on, not only the two
+   teeth they have touched so far. */
+
+#visit-record-card .ct { opacity: .55; }
+
+#visit-record-card .ct.is-this-visit {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--color-accent);
+    border-radius: 50%;
+}
+
+#visit-record-card .ct { cursor: pointer; }
+
+.visit-summary { margin-top: var(--space-s); }
+
+.visit-summary__head {
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.visit-summary__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    font-size: 13px;
+}
+
+.visit-summary__row:last-child { border-bottom: 0; }
+.visit-summary__row strong { min-width: 46px; color: var(--color-accent); }
+.visit-summary__row button { margin-left: auto; }
+
+@media (max-width: 900px) {
+    .visit-grid { grid-template-columns: minmax(0, 1fr); }
+    .modal-card--wide .modal-body { max-height: calc(100vh - 150px); }
+}
+
+/* What a visit did to the chart, shown in the treatment log. The log answers
+   "what happened", the chart answers "where things stand" — this line is the
+   join between them. */
+.log-changes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.log-change {
+    padding: 2px 7px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background-color: var(--bg-subtle);
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* ── Treatment Logs: read and correct (2026-09-15) ─────────────────────── */
+
+.records-log__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-s);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-s);
+}
+
+.records-log__title { margin: 0; }
+
+.records-log__hint {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.records-log__head .btn-sm { white-space: nowrap; }
+
+.log-actions { text-align: right; white-space: nowrap; }
+
+.records-log td:first-child { white-space: nowrap; }
+
+/* Six columns on a small laptop: tighter cells, and a long tooth change may
+   wrap, so Edit stays on screen instead of behind a sideways scroll. */
+.records-log th,
+.records-log td { padding: 10px 12px; }
+.records-log .log-change { white-space: normal; border-radius: 8px; }
+
+/* A corrected record says so, in the row, so nobody reads it as the original. */
+.log-corrected {
+    margin-top: 5px;
+    font-size: 11.5px;
+    color: var(--color-warning);
+}
+
+/* What a correction may not change, shown above the fields it may. */
+.edit-rec-fixed {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: var(--bg-subtle);
+}
+
+.edit-rec-fixed div { min-width: 0; }
+
+.edit-rec-fixed span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.edit-rec-fixed strong {
+    display: block;
+    font-size: 13px;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.edit-rec-lock-note { margin: 6px 0 var(--space-s); }
+
+/* Six short fields: base.css's 100px textarea floor would make this a scroll. */
+#form-edit-record textarea { min-height: 64px; }
+
+@media (max-width: 560px) {
+    .edit-rec-fixed { grid-template-columns: 1fr; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   A VISIT, REOPENED — read-only view of a record already written up.
+   Laid out to be checked at a glance: what was done, then what was written.
+   ------------------------------------------------------------------------ */
+
+.vr-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.vr-head strong { font-size: 15px; }
+
+.vr-procedure {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: var(--color-accent);
+}
+
+.vr-section {
+    margin: var(--space-m) 0 7px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.vr-teeth { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.vr-tooth {
+    padding: 3px 9px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background-color: var(--bg-subtle);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.vr-list { margin: 0; }
+
+/* Label above value, not beside it: clinical notes run long, and a narrow
+   value column turns a two-line finding into six. */
+.vr-row { padding: 8px 0; border-bottom: 1px solid var(--border-color-light); }
+.vr-row:last-child { border-bottom: 0; }
+
+.vr-row dt {
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.vr-row dd {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;   /* the dentist's own line breaks survive */
+}
+
+
+/* ---------------------------------------------------------------------------
+   APPOINTMENT SECTIONS — Today and status filters
+
+   Plain buttons rather than a dropdown. The dentist is not technical;
+   a segmented control shows the choices and which one is active without
+   anyone having to open anything to find out where they are.
+   ------------------------------------------------------------------------ */
+
+.sched-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-s);
+}
+
+.sched-head h3 { margin: 0; }
+
+.seg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    padding: 3px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: var(--bg-subtle);
+}
+
+.seg__btn {
+    padding: 6px 14px;
+    border: 0;
+    border-radius: calc(var(--radius-s) - 2px);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition-clean), color var(--transition-clean);
+}
+
+.seg__btn:hover { color: var(--text-primary); }
+
+.seg__btn.is-on {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-weight: 600;
+    box-shadow: var(--shadow-small);
+}
+
+/* The count is what makes an empty tab readable: it separates "nobody is
+   booked today" from "you are looking at the wrong tab". */
+.seg__n {
+    margin-left: 5px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background-color: var(--border-color-light);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.seg__btn.is-on .seg__n {
+    background-color: var(--color-accent);
+    color: #ffffff;
+}
+
+@media (max-width: 560px) {
+    .sched-head { align-items: stretch; }
+    .seg { width: 100%; }
+    .seg__btn { flex: 1; text-align: center; padding: 8px 6px; }
+}
+
+
+/* ── Patient status: deceased or inactive (2026-09-16) ──────────────────────
+   A record is never deleted, it is marked. These are the three places the mark
+   shows: on the open patient, in the picker row, and under a picker list that
+   is hiding somebody. */
+
+.patient-status-badge {
+    display: inline-block;
+    margin: 6px 0 0;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.patient-status-badge--inactive {
+    background-color: var(--bg-subtle);
+    color: var(--text-secondary);
+}
+
+.picker-row__badge--archived {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+/* The "2 deceased or inactive patients are hidden - show them" line. */
+.picker-archived {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+}
+
+.picker-archived:hover {
+    border-color: var(--text-muted);
+    background-color: var(--bg-subtle);
+}
+
+/* The three choices in the status dialog. */
+.status-choice {
+    display: grid;
+    gap: 8px;
+    margin: var(--space-xs) 0 var(--space-s);
+}
+
+.status-choice__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.status-choice__item:has(input:checked) {
+    border-color: color-mix(in srgb, var(--color-accent) 45%, var(--border-color));
+    background-color: var(--color-accent-light);
+}
+
+.status-choice__item input {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 0;
+    margin: 3px 0 0;
+}
+
+.status-choice__item .field-hint { display: block; font-weight: 400; margin-top: 2px; }
+
+
+/* ── The money summary: one figure, then two (2026-09-16) ───────────────────
+   Replaces three identical stat tiles with their own icons and tints. The
+   front desk asks one question — how much has actually come in — so that
+   number is the page's headline, and the other two sit under it as context.
+   No icons, no tinted tiles: this is information, not decoration. */
+
+.money-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 0 var(--space-l);
+    padding: var(--space-m) var(--space-l);
+}
+
+/* The headline keeps the left column, its label directly above it; the two
+   smaller figures hold the right column across both rows. */
+.money-summary__label { grid-column: 1; grid-row: 1; align-self: end; }
+.money-summary__figure { grid-column: 1; grid-row: 2; align-self: start; }
+.money-summary__rest { grid-column: 2; grid-row: 1 / span 2; }
+
+.money-summary__label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.money-summary__figure {
+    margin: 2px 0 0;
+    font-family: var(--font-heading);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* The two smaller figures sit BESIDE the headline, not under it (clinic
+   request, 2026-09-16), divided by a rule rather than stacked. They drop
+   underneath only when the screen is too narrow to hold both. */
+.money-summary__rest {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+    padding-left: var(--space-l);
+    border-left: 1px solid var(--border-color-light);
+}
+
+.money-summary__rest dt {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.money-summary__rest dd {
+    margin: 1px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+    .money-summary { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+    .money-summary__label,
+    .money-summary__figure,
+    .money-summary__rest { grid-column: 1; grid-row: auto; }
+    .money-summary__rest {
+        margin-top: var(--space-s);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: var(--space-s) 0 0;
+        border-left: 0;
+        border-top: 1px solid var(--border-color-light);
+    }
+}
+
+@media (max-width: 560px) {
+    .money-summary { padding: var(--space-m); }
+    .money-summary__figure { font-size: 32px; }
+}
+
+/* Export buttons, coloured for the file they produce: Excel green, PDF red.
+   Both carry the word as well as the colour. */
+.btn-file {
+    color: #ffffff;
+    border: 1px solid transparent;
+}
+
+.btn-file .icon { color: currentColor; }
+
+.btn-file--excel { background-color: #1d6f42; }
+.btn-file--excel:hover { background-color: #175834; }
+
+.btn-file--pdf { background-color: #b23028; }
+.btn-file--pdf:hover { background-color: #8f261f; }
+
+
+/* ── Account settings ───────────────────────────────────────────────────────
+   One full-width card with a single section hierarchy for all three roles. The form order in the
+   shared template is also the visual and keyboard order. */
+
+/* One card for the whole screen (clinic request, 2026-09-16), with its four
+   short sections separated by a hairline rather than by four card edges. */
+.acct-card {
+    box-sizing: border-box;
+    width: 100%;
+    padding: clamp(20px, 3vw, 40px);
+}
+
+.acct-section {
+    margin-top: var(--space-m);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--border-color-light);
+}
+
+.acct-section__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.acct-section__hint {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.acct-card form { margin-top: var(--space-s); }
+
+.acct-card button[type="submit"] {
+    width: min(100%, 320px);
+    margin-top: var(--space-xs);
+}
+
+.acct-facts {
+    display: grid;
+    gap: var(--space-xs);
+    margin: 0;
+}
+
+.acct-facts div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px var(--space-s);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.acct-facts div:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.acct-facts dt {
+    min-width: 130px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.acct-facts dd {
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.acct-status {
+    margin: var(--space-xs) 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.acct-status:empty { margin: 0; }
+.acct-status--ok    { color: var(--color-success); }
+.acct-status--warn  { color: var(--color-warning); }
+.acct-status--error { color: var(--color-danger); }
+
+/* The closing paragraph: plain words, no box, no dashes. */
+.acct-closing {
+    margin: var(--space-m) 0 0;
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--border-color-light);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.acct-help {
+    margin: var(--space-s) 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background-color: var(--bg-subtle);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+/* The delete-patient dialog. */
+.delete-patient__who {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.delete-patient__blocked {
+    margin: var(--space-s) 0 0;
+    padding: 10px 12px;
+    border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
+    border-radius: 10px;
+    background-color: var(--color-warning-light);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   METRICS ROW — one hero figure, the rest in support
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Deliberately the same shape as .money-summary above, because these two rows
+   answer the same kind of question on two different screens and there is no
+   reason for them to look like they came from different products.
+
+   What this replaces: three identical cards, each with a 44px tile behind its
+   icon tinted accent, teal, accent by nth-child. Four equal boxes in a row is
+   the shape a dashboard takes when nobody has decided what matters, and the
+   alternating tints were colour used as decoration rather than as meaning —
+   the row told you nothing was more important than anything else, which was
+   not true.
+
+   Colour is now reserved for state. The figures are ink; only the sparkline
+   carries the accent, and only because it is the one element whose whole job
+   is to be read as a shape rather than a number.
+   ------------------------------------------------------------------------ */
+
+.metrics {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0 var(--space-l);
+    padding: var(--space-m) var(--space-l);
+    margin-bottom: var(--space-l);
+}
+
+.metrics__label  { grid-column: 1; grid-row: 1; align-self: end; }
+.metrics__figure { grid-column: 1; grid-row: 2; align-self: start; }
+.metrics__spark  { grid-column: 1; grid-row: 3; }
+.metrics__scope  { grid-column: 1; grid-row: 4; }
+.metrics__rest   { grid-column: 2; grid-row: 1 / span 4; }
+
+.metrics__label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* tabular-nums so the figure does not jolt sideways when it ticks from 9 to
+   10 — proportional digits are different widths, and a number that shifts as
+   it updates reads as the layout twitching. */
+.metrics__figure {
+    margin: 2px 0 0;
+    font-family: var(--font-heading);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.metrics__spark { margin-top: 10px; line-height: 0; }
+.metrics__spark svg { display: block; width: 100%; height: 34px; }
+
+/* Says what window the bars cover. A sparkline with no stated range is a
+   shape the reader has to take on trust; "+12.5%" against nothing named is
+   the same problem wearing a badge. */
+.metrics__scope {
+    margin: 6px 0 0;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.metrics__rest {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+    padding-left: var(--space-l);
+    border-left: 1px solid var(--border-color-light);
+}
+
+.metrics__rest dt {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.metrics__rest dd {
+    margin: 2px 0 0;
+    font-family: var(--font-heading);
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* One column on a phone: the hairline divider becomes a rule above the pair,
+   because a vertical border between stacked blocks separates nothing. */
+@media (max-width: 720px) {
+    .metrics { grid-template-columns: minmax(0, 1fr); }
+    .metrics__label,
+    .metrics__figure,
+    .metrics__spark,
+    .metrics__scope { grid-column: 1; }
+    .metrics__rest {
+        grid-column: 1;
+        grid-row: auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: var(--space-m);
+        padding: var(--space-m) 0 0;
+        border-left: 0;
+        border-top: 1px solid var(--border-color-light);
+    }
+}
+
+/* The patient's 180-day name-change countdown (js/account.js renderNameLock). */
+.acct-name-lock {
+    margin: 4px 0 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-danger);
+    border-radius: 8px;
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+.acct-name-lock[hidden] { display: none; }
+/* Locked name boxes look locked, not merely unresponsive. */
+#patient-form-acct-profile input:disabled {
+    background-color: #f1f3f2;
+    color: var(--text-muted);
+    cursor: not-allowed;
+}

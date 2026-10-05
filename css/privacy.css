@@ -1,0 +1,246 @@
+/* ============================================================================
+   DentCare — Privacy Policy page (privacy.php, 2026-10-03, client revision 22)
+   ----------------------------------------------------------------------------
+   A reading page. It borrows the public site's palette and type (css/landing.css
+   tokens, repeated here because this page loads nothing else) and keeps to the
+   design references: flat, hairlines, one tinted block, brown for links only,
+   no side bars. Readable at 320px with no sideways scroll.
+   ========================================================================== */
+
+.privacy-page {
+    --canvas:      #FAF7F1;
+    --canvas-deep: #F2ECE1;
+    --lift:        #FFFFFF;
+    --ink:         #2F3331;
+    --ink-2:       #5C6360;
+    --brand:       #8A5F3A;
+    --brand-deep:  #6F4B2D;
+    --line:        #E7DDCC;
+    --mark-bg:     #FFF1C7;
+    --mark-ink:    #5E4310;
+    --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --font-body:    "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-wrap: break-word;
+}
+
+.privacy-page *,
+.privacy-page *::before,
+.privacy-page *::after { box-sizing: border-box; }
+
+.privacy-page a { color: var(--brand); text-underline-offset: 3px; }
+.privacy-page a:hover { color: var(--brand-deep); }
+.privacy-page a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 4px; }
+
+/* ── The DRAFT banner: only while the policy is not approved ───────────────── */
+.privacy-draft-banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    justify-content: center;
+    padding: 10px 16px;
+    background: var(--mark-bg);
+    color: var(--mark-ink);
+    border-bottom: 1px solid #E9D28A;
+    font-size: 15px;
+    text-align: center;
+}
+
+/* A fact still waiting for a person to confirm it (the draft only). It sits
+   on its own line under the sentence it belongs to: still impossible to miss,
+   but the policy around it reads as a policy (2026-10-05). */
+.needs-confirmation {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 8px 0 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--mark-bg);
+    color: var(--mark-ink);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.privacy-page ::selection { background: #E8D6BE; color: var(--ink); }
+
+/* ── Top bar ──────────────────────────────────────────────────────────────── */
+.privacy-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 16px;
+}
+.privacy-bar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    color: var(--ink) !important;
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 26px;
+}
+.privacy-bar__brand img { border-radius: 10px; background: var(--lift); }
+.privacy-bar__back {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--lift);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* ── Title ────────────────────────────────────────────────────────────────── */
+.privacy-main { max-width: 1120px; margin: 0 auto; padding: 8px 16px 64px; }
+
+.privacy-head { padding: 24px 0 32px; border-bottom: 1px solid var(--line); }
+.privacy-head h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(44px, 10vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+}
+.privacy-head__lede { margin: 12px 0 0; color: var(--ink-2); font-size: 19px; }
+.privacy-meta { display: flex; flex-wrap: wrap; gap: 8px 32px; margin: 16px 0 0; }
+.privacy-meta div { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.privacy-meta dt { color: var(--ink-2); font-size: 16px; }
+.privacy-meta dd { margin: 0; font-weight: 600; }
+
+/* ── Contents and text ────────────────────────────────────────────────────── */
+.privacy-layout { display: block; padding-top: 24px; }
+
+.privacy-toc details {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--lift);
+    padding: 4px 16px;
+}
+.privacy-toc summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+}
+.privacy-toc summary::-webkit-details-marker { display: none; }
+/* A chevron that says the folded list opens, and turns when it has. */
+.privacy-toc summary::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    margin-left: auto;
+    border-right: 2px solid var(--brand);
+    border-bottom: 2px solid var(--brand);
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.privacy-toc details[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+/* The headings carry their own numbers (1. Who is responsible ...). */
+.privacy-toc ol { margin: 0 0 12px; padding-left: 0; list-style: none; }
+.privacy-toc li { padding: 2px 0; }
+.privacy-toc a { text-decoration: none; color: var(--ink); }
+.privacy-toc a:hover { color: var(--brand); text-decoration: underline; }
+.privacy-toc li { line-height: 1.45; }
+
+.privacy-text { max-width: 68ch; }
+
+/* Each section is separated by a hairline and generous space; the heading
+   sits closer to its own text than to the section above. */
+.policy-section { padding: 32px 0 0; scroll-margin-top: 24px; }
+.policy-section + .policy-section { margin-top: 32px; border-top: 1px solid var(--line); }
+.policy-section--short + .policy-section { margin-top: 8px; border-top: 0; }
+.policy-section h2 {
+    margin: 0 0 16px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(27px, 5vw, 34px);
+    line-height: 1.2;
+    text-wrap: balance;
+}
+.policy-section:target h2 { color: var(--brand-deep); }
+.policy-section p { margin: 0 0 14px; }
+.policy-section ul { margin: 0 0 14px; padding-left: 22px; }
+.policy-section li { margin: 0 0 10px; padding-left: 4px; }
+.policy-section li::marker { color: var(--brand); }
+.policy-section strong { font-weight: 600; }
+
+/* The one tinted block on the page. */
+.policy-section--short {
+    margin-top: 24px;
+    padding: 24px;
+    border-radius: 16px;
+    background: var(--canvas-deep);
+}
+
+.policy-section--history table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.policy-section--history th,
+.policy-section--history td { text-align: left; vertical-align: top; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+.policy-section--history th { color: var(--ink-2); font-weight: 600; }
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.privacy-foot {
+    border-top: 1px solid var(--line);
+    padding: 24px 16px 32px;
+    text-align: center;
+    color: var(--ink-2);
+    font-size: 15px;
+}
+.privacy-foot p { margin: 4px 0; }
+
+/* ── Wide screens: the contents stay beside the text ──────────────────────── */
+@media (min-width: 960px) {
+    .privacy-bar { padding: 20px 40px; }
+    .privacy-main { padding: 8px 40px 96px; }
+    .privacy-layout {
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        gap: 64px;
+        align-items: start;
+    }
+    .privacy-toc { position: sticky; top: 24px; }
+    .privacy-toc details { border: 0; background: none; padding: 0; }
+    .privacy-toc summary {
+        min-height: 0;
+        margin-bottom: 8px;
+        color: var(--ink-2);
+        font-size: 14px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        pointer-events: none;
+        list-style: none;
+    }
+    .privacy-toc summary::-webkit-details-marker { display: none; }
+    .privacy-toc summary::after { display: none; }
+    .privacy-toc ol { font-size: 17px; }
+    .policy-section--short { margin-top: 32px; padding: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .privacy-toc summary::after { transition: none; }
+}
+
+@media print {
+    .privacy-bar, .privacy-toc, .privacy-foot { display: none; }
+    .privacy-page { background: #fff; }
+    .privacy-layout { display: block; }
+}

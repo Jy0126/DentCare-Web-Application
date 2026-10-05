@@ -1,0 +1,1013 @@
+/*
+ * DentCare — the marble canvas, and the sidebar that reads at a glance
+ * ---------------------------------------------------------------------------
+ * Loaded LAST, so anything here wins a specificity tie with the files before
+ * it. Nothing in here changes behaviour; it is the surface the clinic works on.
+ *
+ * ── WHY THE TEXTURE IS THIS QUIET ────────────────────────────────────────
+ *
+ * The brief asked for a golden marble wall behind the working areas. The trap
+ * in that is obvious the moment you try it at full strength: this system's
+ * screens are dense clinical tables, a 52-tooth chart, and columns of money.
+ * Stone behind any of those is unreadable, and unreadable is not a style
+ * choice in a room where somebody is deciding what to do to a person's mouth.
+ *
+ * So the marble is on the CANVAS — the ground the cards sit on — and every
+ * card stays opaque. You see stone in the margins, around the edges, behind
+ * the page. You never read a number off it. That is also how a real marble
+ * wall works in a real clinic: it is the room, not the paperwork.
+ *
+ * The texture is drawn here rather than loaded as a photograph. A JPEG of
+ * marble would be 200-600 KB on a clinic connection, would tile visibly, and
+ * would go blurry on a large screen. This is a few hundred bytes of SVG,
+ * resolution-independent, and it costs no request.
+ */
+
+/* ─────────────────────────────────────────────────────────────
+   1. The marble
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+    /* Warm ivory, not the cool grey it replaces. Gold veins need a warm
+       ground or they read as dirt rather than as stone. */
+    --marble-base:  #faf8f3;
+    --marble-deep:  #f1ece1;
+    --marble-vein:  #c9a961;
+    --marble-line:  #e3d7bd;
+
+    /* The section cues. Each one means something — see the sidebar below. */
+    --sec-day:      #17608f;
+    --sec-clinical: #2aa79e;
+    --sec-records:  #8a6a2f;
+    --sec-supplies: #6b4fa8;
+    --sec-system:   #4a5d6e;
+}
+
+/*
+ * Three layers, cheapest last:
+ *   1. the veins        — SVG, displaced by turbulence so they wander
+ *   2. a soft pooling   — two radial gradients, the shading of a cut slab
+ *   3. the base colour  — flat ivory underneath everything
+ *
+ * background-attachment: fixed keeps the slab still while the work scrolls
+ * over it. A texture that scrolls with the content reads as wallpaper stuck
+ * to the page; one that stays put reads as a wall the page is sitting against.
+ */
+.main-content {
+    background-color: var(--marble-base);
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200'%3E%3Cdefs%3E%3Cfilter id='v' x='-30%25' y='-30%25' width='160%25' height='160%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.012' numOctaves='4' seed='11' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='150' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23v)' fill='none' stroke-linecap='round'%3E%3Cpath d='M-100 220 C 250 120 520 330 900 190 C 1080 130 1200 210 1350 160' stroke='%23c9a961' stroke-width='2.6' opacity='0.55'/%3E%3Cpath d='M-100 250 C 260 150 540 360 920 215' stroke='%23b89a55' stroke-width='1.0' opacity='0.40'/%3E%3Cpath d='M-140 400 C 220 330 480 500 820 400 C 1010 345 1150 420 1340 380' stroke='%23c9a961' stroke-width='1.4' opacity='0.34'/%3E%3Cpath d='M-120 640 C 200 560 430 780 760 660 C 980 580 1120 700 1330 620' stroke='%23c9a961' stroke-width='3.0' opacity='0.50'/%3E%3Cpath d='M-120 675 C 210 600 450 800 780 690' stroke='%23b89a55' stroke-width='1.0' opacity='0.38'/%3E%3Cpath d='M-140 850 C 240 790 460 950 800 860 C 1020 800 1160 880 1340 840' stroke='%23c9a961' stroke-width='1.3' opacity='0.30'/%3E%3Cpath d='M-100 1030 C 280 950 470 1140 880 1010 C 1060 950 1180 1030 1320 990' stroke='%23c9a961' stroke-width='2.3' opacity='0.46'/%3E%3Cpath d='M180 -80 C 240 260 120 520 300 860 C 380 1030 300 1180 340 1300' stroke='%23c9a961' stroke-width='1.7' opacity='0.34'/%3E%3Cpath d='M880 -80 C 940 240 820 540 1000 880 C 1070 1040 1010 1200 1040 1300' stroke='%23c9a961' stroke-width='1.5' opacity='0.30'/%3E%3Cpath d='M540 -80 C 580 300 470 600 640 980' stroke='%23e3d7bd' stroke-width='4' opacity='0.75'/%3E%3Cpath d='M1080 -60 C 1120 280 1010 560 1180 900' stroke='%23e3d7bd' stroke-width='3.4' opacity='0.6'/%3E%3C/g%3E%3C/svg%3E"),
+        radial-gradient(120% 90% at 12% 0%, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0) 55%),
+        radial-gradient(110% 80% at 88% 100%, rgba(206, 186, 145, 0.50) 0%, rgba(214, 199, 168, 0) 60%);
+    background-size: 1200px 1200px, auto, auto;
+    background-repeat: repeat, no-repeat, no-repeat;
+    background-attachment: fixed, fixed, fixed;
+}
+
+/* The fixed, filtered SVG and page-height gradients force costly repainting
+   while the dashboard and nested tables scroll. The warm marble base keeps
+   the existing palette without putting a filtered layer behind every frame. */
+.main-content {
+    background-image: none;
+    background-attachment: scroll;
+}
+
+/*
+ * The cards keep their own ground.
+ *
+ * This is the rule that makes the texture safe. Every panel, table, dialog and
+ * chart sits on solid white with a warm hairline; nothing readable is ever set
+ * against stone. If a new component appears that is transparent by default, it
+ * belongs in this list.
+ */
+.main-content .card,
+.main-content .table-container,
+.main-content .modal-card,
+.main-content .dashboard-card {
+    background-color: #ffffff;
+    border-color: var(--marble-line);
+}
+
+/* A warmer shadow than pure grey, so panels sit ON the stone rather than
+   floating in front of a photograph of it. */
+.main-content .card {
+    box-shadow: 0 1px 2px rgba(120, 100, 60, 0.06),
+                0 6px 18px rgba(120, 100, 60, 0.05);
+}
+
+/* Anyone who has asked their system not to animate has also, usually, asked
+   for less visual noise. Flatten the stone to a plain warm ground. */
+@media (prefers-reduced-motion: reduce) {
+    .main-content {
+        background-image: none;
+        background-color: var(--marble-base);
+    }
+}
+
+/* Printing a page of marble wastes a cartridge and reads worse. */
+@media print {
+    .main-content {
+        background: #ffffff !important;
+    }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   2. The sidebar: grouped, indented, colour-cued
+   ───────────────────────────────────────────────────────────── */
+
+/*
+ * ── WHERE THE COLOUR LIVES ───────────────────────────────────────────────
+ *
+ * The brief asked for colour coding so a module is recognisable at a glance.
+ * Colouring the module names themselves is the wrong way: coloured text is
+ * harder to read than dark text, and this sidebar is read by a dentist between
+ * patients and by a front desk with a queue waiting.
+ *
+ * It used to sit on a 3px rail down the left of each group. The clinic asked
+ * for that to go on 2026-09-14 — a coloured bar down one side of a box is the
+ * most recognisable "generated" look there is. It became a small dot, and the
+ * same day the clinic asked for more: each group's NAME now sits in a solid
+ * box of the group colour with white text. The active item keeps a pale wash
+ * of the same colour, with its text kept dark.
+ *
+ * Each colour means something rather than merely differing:
+ *   blue   the day        — who is coming, who is waiting
+ *   teal   clinical       — the mouth, and what was done to it
+ *   gold   the records    — money and the services list; ties to the marble
+ *   plum   supplies       — the cupboard
+ *   slate  system         — schedule settings, backup
+ *   red    leaving
+ */
+
+.nav-group {
+    margin-bottom: var(--space-s, 12px);
+}
+
+/* The group's name in a solid box of the group's colour (clinic request,
+   2026-09-14: "the box colored instead of a dot"). White on the colour, so
+   each section is recognisable from across the room. The box is filled all
+   round with no side bar. --nav-box is a shade of the group colour dark enough
+   for white 11px text to pass AA (4.5:1); teal needs a deeper shade than its
+   hue, the others are already dark enough. */
+.nav-group__label {
+    display: flex;
+    align-items: center;
+    min-height: 26px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: #ffffff;
+    background-color: var(--nav-box, var(--nav-hue, var(--text-secondary)));
+    border-radius: 8px;
+    padding: 5px 10px;
+    margin: 0 0 6px;
+}
+
+/* The items. No rail: the dot above and the active pill carry the colour. */
+.nav-group__items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 0;
+    margin-left: 4px;
+    /* A flex column already stretches its children to the content width.
+       .nav-item carries width: 100% from layout.css, which resolves against
+       this box and then overflows it by the padding — that pushed a
+       horizontal scrollbar into the sidebar, which forced a vertical one,
+       which narrowed the items until every two-word label wrapped. */
+    min-width: 0;
+}
+
+.nav-group--day      { --nav-hue: var(--sec-day); }
+.nav-group--clinical { --nav-hue: var(--sec-clinical); --nav-box: #1f7f78; }
+.nav-group--records  { --nav-hue: var(--sec-records); }
+.nav-group--supplies { --nav-hue: var(--sec-supplies); }
+.nav-group--system   { --nav-hue: var(--sec-system); }
+
+/* The group's own colour replaces the global accent for its items, so an
+   active Charting tab is teal and an active Billing tab is gold without a
+   rule per tab. */
+.nav-group__items .nav-item {
+    width: auto;
+    min-width: 0;
+    border-left: 0;
+    border-radius: 10px;
+    /* base.css centres every button's content. Under a left-aligned group box
+       the module names must line up on the left, like a list. */
+    justify-content: flex-start;
+}
+
+/* Two-word module names must stay on one line at 280px, or the sidebar grows
+   a scrollbar and the names stop being scannable — which is the whole job. */
+.nav-group__items .nav-item span,
+.nav-group__items .nav-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-group__items .nav-item:hover {
+    color: var(--text-primary);
+    background-color: rgba(28, 28, 28, 0.045);
+}
+
+/* Active: a pale wash of the group's colour, dark text, the icon in the group
+   colour. Dark-on-pale reads at a glance and keeps AA contrast for every group
+   colour, where white text on the gold or teal fill did not. */
+.nav-group__items .nav-item.active {
+    color: var(--text-primary);
+    background-color: color-mix(in srgb, var(--nav-hue) 13%, #ffffff);
+    font-weight: 700;
+}
+
+.nav-group__items .nav-item.active .icon {
+    color: var(--nav-hue);
+}
+
+/*
+ * ── SUBMODULES ──────────────────────────────────────────────────────────
+ *
+ * Treatment Logs and Patient History are both readings of what Charting
+ * records — the chart is where a finding is entered, and those two are where
+ * it is read back. Indenting says so, and saves the doctor working out the
+ * relationship from three similar-sounding names in a flat list.
+ *
+ * The connector is a short hairline rather than a tree diagram: enough to show
+ * the item hangs off the one above it, not enough to become furniture.
+ */
+.nav-item--sub {
+    margin-left: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    position: relative;
+}
+
+.nav-item--sub::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    width: 6px;
+    height: 1px;
+    background-color: var(--nav-hue, var(--border-color));
+    opacity: 0.55;
+}
+
+.nav-item--sub.active::before {
+    opacity: 1;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   3. Log out, visible without being hunted for
+   ───────────────────────────────────────────────────────────── */
+
+/*
+ * It used to be muted grey until hovered, which meant the one control everyone
+ * needs at the end of a shift was the only one you had to go looking for. It
+ * is red at rest now, and separated from the modules by the auto margin — it
+ * is not a module, and it should not sit in the list as though it were.
+ */
+.logout-button {
+    color: var(--color-danger);
+    background-color: var(--color-danger-light);
+    border: 1px solid rgba(192, 57, 43, 0.28);
+    border-radius: var(--radius-m, 4px);
+    font-weight: 700;
+    margin-top: auto;
+    padding: 11px var(--space-s, 12px);
+    justify-content: center;
+}
+
+.logout-button:hover,
+.logout-button:focus-visible {
+    color: #ffffff;
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+.logout-button .icon {
+    color: currentColor;
+}
+
+/* The sidebar scrolls on its own once a role has enough modules to overflow;
+   without this the logout button can be pushed off a short laptop screen. */
+.sidebar-menu {
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   4. The mobile drawer keeps all of it
+   ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .nav-group__items {
+        margin-left: 4px;
+    }
+
+    .nav-item--sub {
+        margin-left: 10px;
+    }
+
+    /*
+     * css/layout.css sets .sidebar .nav-item { width: 100% !important } in its
+     * own mobile block, and !important beats the width: auto above. Left alone
+     * that brings the sideways overflow straight back below 900px — the same
+     * bug, only on the phone the front desk actually carries.
+     */
+    .nav-group__items .nav-item {
+        width: auto !important;
+        min-width: 0;
+    }
+
+    /* layout.css's mobile block restyles the active item with !important;
+       these restate the pale pill so the phone matches the desktop. */
+    .sidebar .nav-group__items .nav-item.active {
+        border-left: 0 !important;
+        border-radius: 10px !important;
+        background-color: color-mix(in srgb, var(--nav-hue) 13%, #ffffff) !important;
+        color: var(--text-primary) !important;
+    }
+
+    /* The repeated 1200px SVG above runs turbulence + displacement filters,
+       and even the two soft light pools that replaced it were painted across
+       the whole height of the scrolling dashboard: a layer thousands of pixels
+       tall. On a real phone (2026-09-24) that showed as blank screens while
+       scrolling. Phones and tablets get the flat marble colour. */
+    .main-content {
+        background-image: none;
+        background-attachment: scroll;
+    }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   5. The official receipt
+   ───────────────────────────────────────────────────────────── */
+
+/*
+ * ── WHY IT LOOKS LIKE THIS ──────────────────────────────────────────────
+ *
+ * A receipt is the one thing in this system that leaves the building in
+ * somebody's hand. It is read by a patient who was not looking at the screen
+ * it came from, sometimes months later, sometimes by their HMO. So it carries
+ * its own authority: a serial, ruled particulars, the amount twice — once in
+ * figures and once in words — and a signature over the name of whoever took
+ * the money.
+ *
+ * The marble stops at the door. This is a document, printed in black on white,
+ * and every decorative instinct is wrong here.
+ */
+
+/* 2026-09-24: 78ch (about 700px) let the printed receipt stretch across the
+   whole A4 sheet, leaving every price 600px from its label. A receipt is a
+   narrow document: 125mm keeps each figure beside what it pays for. */
+#receipt-printable-area {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    color: var(--text-primary);
+}
+
+.rc {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #111111;
+    background: #ffffff;
+    max-width: 125mm;
+    margin: 0 auto;
+    line-height: 1.55;
+}
+
+.rc-head {
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.rc-head__clinic {
+    margin: 0 0 4px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #111111;
+}
+
+.rc-head__addr {
+    margin: 0;
+    font-size: 11.5px;
+    color: #444444;
+    line-height: 1.45;
+}
+
+/* The double rule under the clinic name is the one flourish, and it is the
+   flourish every printed receipt in the country already has. */
+.rc-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 12px 0 16px;
+    padding: 7px 0;
+    border-top: 3px double #111111;
+    border-bottom: 1px solid #111111;
+}
+
+.rc-title__word {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.rc-title__no {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.rc-block {
+    margin-bottom: 14px;
+}
+
+.rc-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 13px;
+    padding: 2px 0;
+}
+
+/* A dotted leader from each label to its figure, as on a printed official
+   receipt, so the eye follows the line to the price instead of across a gap. */
+.rc-row__k {
+    display: flex;
+    flex: 1;
+    align-items: baseline;
+    min-width: 0;
+    color: #444444;
+}
+.rc-lead {
+    display: flex;
+    align-items: baseline;
+}
+.rc-row__k::after,
+.rc-lead::after {
+    content: "";
+    flex: 1;
+    min-width: 12px;
+    margin: 0 0 0 8px;
+    border-bottom: 1px dotted #9a9a9a;
+    transform: translateY(-3px);
+}
+
+/* Figures are monospaced so a column of them lines up on the decimal, and so
+   a hand-altered digit is obvious. */
+.rc-row__v {
+    font-family: 'Courier New', monospace;
+    text-align: right;
+}
+
+.rc-particulars {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0 10px;
+    font-size: 13px;
+}
+
+.rc-particulars th,
+.rc-particulars td {
+    padding: 7px 4px;
+    text-align: left;
+}
+
+.rc-particulars thead th {
+    border-bottom: 1px solid #111111;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #444444;
+}
+
+.rc-particulars thead th:last-child,
+.rc-particulars td:last-child,
+.rc-particulars tfoot th:last-child {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    /* The Amount column hugs the price instead of taking ~40% of the table. */
+    width: 1%;
+    white-space: nowrap;
+}
+
+.rc-particulars tfoot th {
+    border-top: 1px solid #111111;
+    border-bottom: 3px double #111111;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.rc-total { font-size: 15px; }
+
+/* The amount in words. Italic, on a light rule above and below, so it reads as
+   the sentence it is and is never mistaken for another line item. (It used to
+   hang off a black bar down its left edge; removed 2026-09-14.) */
+.rc-words {
+    margin: 0 0 16px;
+    padding: 8px 0;
+    border-top: 1px dashed #8a8a8a;
+    border-bottom: 1px dashed #8a8a8a;
+    font-style: italic;
+    font-size: 12.5px;
+}
+
+.rc-balance {
+    margin: 0 0 16px;
+    padding: 8px 10px;
+    background: #f4f1e9;
+    border: 1px solid #d8cfb8;
+    font-size: 12.5px;
+}
+
+.rc-balance--settled {
+    background: #eef6f0;
+    border-color: #bcd9c6;
+}
+
+.rc-sign {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 28px;
+}
+
+.rc-sign__label {
+    font-size: 11px;
+    color: #444444;
+}
+
+.rc-sign__rule {
+    display: block;
+    width: 220px;
+    max-width: 100%;
+    border-bottom: 1px solid #111111;
+    margin: 26px 0 5px;
+}
+
+.rc-sign__name {
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+/* Printed across the top of a voided receipt, so a reprint can never pass
+   for proof of payment. */
+.rc-void {
+    margin: 0 0 12px;
+    padding: 8px 10px;
+    border: 2px solid #9b1c1c;
+    color: #9b1c1c;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+.rc-foot {
+    margin: 22px 0 0;
+    padding-top: 8px;
+    border-top: 1px solid #ccc4b0;
+    font-size: 10.5px;
+    color: #555555;
+    text-align: center;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   6. Printing the receipt
+   ───────────────────────────────────────────────────────────── */
+
+/*
+ * There are no print rules here any more (2026-09-30). The receipt used to be
+ * printed with window.print() on the whole page, and a block of @media print
+ * rules hid everything else. It came out too large, on whatever paper the
+ * browser assumed. printReceipt() in js/billing.js now hands the receipt to
+ * printClinicSheet() in js/print.js, which prints it alone on the clinic's
+ * half sheet and takes the .rc rules above with it.
+ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   7. The page title, which sits on the stone on purpose
+   ───────────────────────────────────────────────────────────── */
+
+/*
+ * .card-header is the only thing in the work area NOT given an opaque ground,
+ * and that is a decision rather than the omission it looks like.
+ *
+ * Measured: --text-primary (#1c1c1c) against the darkest point of the marble
+ * (rgb(228,217,194), where the bottom-right wash is at full strength) is
+ * 12.2:1 — past AAA. A large bold heading is exactly the kind of thing that
+ * can sit on texture, and letting it do so is what makes the stone visible at
+ * the top of every screen instead of only in the margins.
+ *
+ * What did NOT survive was the hairline under it. --border-color-light
+ * measured 1.15:1 against the same ground — a divider nobody can see. So the
+ * rule is warmed to the stone instead of being left cool and invisible.
+ *
+ * If this heading ever gains dense content beside it — a stat, a table, a set
+ * of controls with their own light grounds — it stops being a heading and
+ * belongs in the opaque list above.
+ */
+.main-content .card-header {
+    border-bottom-color: rgba(138, 106, 47, 0.45);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   8. One !important that had to be answered
+   ───────────────────────────────────────────────────────────── */
+
+/*
+ * css/layout.css sets, inside its own 768px block:
+ *     .sidebar .logout-button { border-top: 1px solid rgba(255,255,255,0.08) !important }
+ *
+ * That was written for a dark sidebar this app no longer has. Against the
+ * red-tinted button it renders as a near-white seam across the top edge while
+ * the other three sides stay red — the button looks broken rather than
+ * deliberate, on the phone the front desk actually carries.
+ */
+@media (max-width: 768px) {
+    .sidebar .logout-button {
+        border-top: 1px solid rgba(192, 57, 43, 0.28) !important;
+    }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   9. Comfortable targets for a non-technical clinic (2026-09-16)
+   ─────────────────────────────────────────────────────────────
+
+   The clinic asked for buttons that are easy to find and to hit: Dr. Gapit
+   and the front desk are not technical, and the portal is used on a desktop,
+   a tablet and a phone. The small-button style was 12px text in a ~28px
+   button, and most buttons were ~40px.
+
+   Portal only (.app-layout), so the public landing page keeps its own
+   measured type. Nothing here changes a colour or a layout direction, only
+   size:
+   - every button at least 42px tall, and 44px on a touch screen (the usual
+     minimum for a thumb);
+   - "small" buttons (btn-sm: table actions, Open, Edit) at 13.5px text and
+     at least 38px, so a row of them still fits in a table;
+   - fields at least 42px tall, labels 14px. */
+
+.app-layout button,
+.app-layout .btn,
+.modal-overlay button {
+    min-height: 42px;
+}
+
+.app-layout .btn-sm,
+.modal-overlay .btn-sm {
+    min-height: 38px;
+    padding: 7px 14px;
+    font-size: 13.5px;
+}
+
+.app-layout input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.app-layout select,
+.modal-overlay input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.modal-overlay select {
+    min-height: 42px;
+}
+
+.app-layout label,
+.modal-overlay label {
+    font-size: 14px;
+}
+
+/* Module names keep their 14px on a desktop: the staff sidebar holds eight
+   modules and five group names, and at 15px it outgrew a 768px-tall laptop
+   screen and grew a scrollbar that clipped the names. The phone menu sets its
+   own 15px in css/layout.css. */
+
+/* Short laptop screens (768px tall and less than ~820px): the staff sidebar
+   needed about 50px more than it had, so it scrolled and the scrollbar clipped
+   the module names. Slightly tighter rows fit every module with no scroll. */
+@media (min-width: 901px) and (max-height: 820px) {
+    .sidebar .nav-group__items .nav-item {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+    .sidebar .nav-group {
+        margin-bottom: 8px;
+    }
+    .sidebar .sidebar-subtitle {
+        margin-bottom: var(--space-s);
+    }
+}
+
+/* Touch screens: every tap target reaches 44px. */
+@media (pointer: coarse) {
+    .app-layout button,
+    .app-layout .btn,
+    .app-layout .btn-sm,
+    .modal-overlay button,
+    .modal-overlay .btn-sm {
+        min-height: 44px;
+    }
+}
+
+/* The hamburger bars and the tooth cells size themselves; a min-height on
+   anything drawn inside a chart would stretch the chart. */
+.app-layout .record-card button,
+.app-layout .ct {
+    min-height: 0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   10. Phones: one set of layout rules (2026-09-25)
+   ─────────────────────────────────────────────────────────────
+
+   The owner: on a phone the portal "looks like everything is just fitted
+   together". It was: every component brought its own margins, so the page
+   had a margin, each card another inside it, and boxes sat inside boxes. These
+   are the owner-approved rules, in one place, for 600px and below only.
+   Tablets, desktops and the public landing page are untouched.
+
+     1. Header: 56px, icon-only Menu button, logo and the bell on one line.
+        (The rules said a 40px bell; it stays 44px, the touch minimum every
+        other control keeps, and matches the 44px Menu button beside it.)
+     2. Spacing: a 12px gutter; gaps only from 4 / 8 / 12 / 16 / 24.
+     3. No box inside a box: forms keep one white card (12px corners, 16px
+        padding, light grey hairline); a section that holds a list drops its
+        box, because each record is its own card (css/components.css).
+     4. Type: page title 20px, section title 16px.
+     5. The booking summary: three equal tiles in one row.
+     6. Filters: one row that swipes sideways, never wraps.
+     7. Compact / Default / Comfortable: hidden; record cards have fixed
+        spacing, so it has nothing to change here. */
+@media (max-width: 600px) {
+    /* 1. Header */
+    .sidebar {
+        --mobile-bar-h: 56px;
+        padding: 6px 12px;
+    }
+
+    .sidebar-brand-row {
+        gap: 8px;
+    }
+
+    /* layout.css draws the Menu button as an outlined pill with !important;
+       these answer it. The word stays for screen readers (aria-label). */
+    .sidebar-toggle-btn {
+        justify-content: center;
+        width: 44px;
+        padding: 0 !important;
+        border-color: transparent !important;
+        border-radius: 12px;
+        background-color: transparent !important;
+    }
+
+    .sidebar-toggle-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .sidebar-title {
+        font-size: 19px;
+    }
+
+    .notif-panel {
+        top: 62px;
+        max-height: calc(100dvh - 74px);
+    }
+
+    /* 2. Spacing */
+    .main-content {
+        padding: 16px 12px calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* 4. The page title: no rule under it (it looked like a stray line once
+       the title scrolled away). */
+    .main-content .card-header {
+        margin-bottom: 12px;
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .main-content .card-header h2 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.25;
+    }
+
+    /* 3. One box, never two */
+    .main-content .card {
+        margin-bottom: 12px;
+        padding: 16px;
+        border-color: var(--border-color);
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    .main-content .card:hover {
+        box-shadow: none;
+    }
+
+    .main-content .card h3 {
+        font-size: 16px;
+        line-height: 1.3;
+    }
+
+    .main-content .card:has(> .table-container) {
+        padding: 0;
+        border: 0;
+        background-color: transparent;
+    }
+
+    /* 5. The booking summary as three tiles. The label and figure are two
+       elements, so the first tile is drawn as two halves that meet. */
+    .main-content .metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 0 8px;
+        margin-bottom: 12px;
+        padding: 0;
+        border: 0;
+        background-color: transparent;
+    }
+
+    .metrics__spark,
+    .metrics__scope {
+        display: none;
+    }
+
+    .metrics__label,
+    .metrics__figure,
+    .metrics__rest > div {
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+    }
+
+    .metrics__label {
+        grid-column: 1;
+        grid-row: 1;
+        padding: 10px 12px 0;
+        border-bottom: 0;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .metrics__figure {
+        grid-column: 1;
+        grid-row: 2;
+        align-self: stretch;
+        display: flex;
+        align-items: flex-end;
+        margin: 0;
+        padding: 2px 12px 10px;
+        border-top: 0;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .metrics__rest {
+        display: contents;
+    }
+
+    /* Label at the top, figure at the bottom, so all three figures sit on
+       one line even when "Waiting for approval" takes two. */
+    .metrics__rest > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        grid-row: 1 / span 2;
+        padding: 10px 12px;
+        border-radius: 12px;
+    }
+
+    .metrics__label,
+    .metrics__rest dt {
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
+        line-height: 1.35;
+    }
+
+    .metrics__figure,
+    .metrics__rest dd {
+        font-size: 22px;
+        line-height: 1.2;
+    }
+
+    /* Something is waiting: that tile turns amber (js/appointments.js sets
+       .has-waiting). */
+    .metrics.has-waiting .metrics__label,
+    .metrics.has-waiting .metrics__figure {
+        background-color: var(--color-warning-light);
+        border-color: color-mix(in srgb, var(--color-warning) 30%, var(--border-color));
+        color: var(--color-warning);
+    }
+
+    /* 6. Filters: one row, swiped sideways, running to the screen's edges. */
+    .appt-filter-pills {
+        flex: 1 1 100%;
+        flex-wrap: nowrap;
+        min-width: 0;
+        margin: 0 -12px;
+        padding: 2px 12px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .appt-filter-pills::-webkit-scrollbar {
+        display: none;
+    }
+
+    button.appt-filter {
+        flex: 0 0 auto;
+    }
+
+    button.appt-filter[aria-pressed="true"] {
+        border-color: var(--text-primary);
+        background-color: var(--text-primary);
+        color: #ffffff;
+        box-shadow: none;
+    }
+
+    button.appt-filter[aria-pressed="true"] .filter-count {
+        background-color: rgba(255, 255, 255, 0.22);
+    }
+
+    /* The money summary follows the same type rules as the booking tiles:
+       sentence-case label, a figure that fits a phone. It keeps its one
+       headline figure because peso amounts are too long for a third of the
+       screen. */
+    .money-summary__label {
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
+    }
+
+    .money-summary__figure {
+        font-size: 30px;
+    }
+
+    /* Toolbars: every control a full row, so nothing sits half-width with
+       a gap beside it. The search box's inline 240px / 13px is answered
+       here; 16px also stops iPhones zooming in when it is tapped. */
+    #billing-search {
+        max-width: none !important;
+        min-height: 44px;
+        font-size: 16px !important;
+    }
+
+    .billing-exports {
+        margin-left: 0 !important;
+    }
+
+    .billing-exports > button {
+        flex: 1 1 0;
+        justify-content: center;
+    }
+
+    /* Manage Schedule's time slots: each a bordered, full-height choice with
+       the box beside its time, instead of a box floating mid-column. */
+    .slots-grid label {
+        min-height: 44px;
+        padding: 0 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background-color: #ffffff;
+    }
+
+    .slots-grid input[type="checkbox"] {
+        flex: none;
+        width: 20px;
+        height: 20px;
+        margin: 0;
+    }
+
+    /* A save button lines up with the fields above it (its desktop cap of
+       320px left it 12px short of them on a phone). */
+    .acct-card button[type="submit"] {
+        width: 100%;
+    }
+
+    /* 7. Row density has nothing to change on a phone. */
+    [data-density-control] {
+        display: none;
+    }
+}

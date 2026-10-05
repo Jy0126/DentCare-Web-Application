@@ -1,0 +1,548 @@
+/*
+ * DentCare – Authentication & Landing Screen Styles
+ */
+
+/* 1. Landing Screen Layout */
+.landing-hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-canvas);
+    padding: var(--space-m);
+    box-sizing: border-box;
+}
+
+.landing-header {
+    text-align: center;
+    margin-bottom: var(--space-l);
+}
+
+.landing-header h1 {
+    font-size: 42px;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.landing-header h1 span {
+    color: var(--color-accent);
+}
+
+.landing-header p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 2. Authentication Cards */
+.auth-container {
+    width: 100%;
+    max-width: 480px;
+    background-color: var(--bg-card);
+    border-radius: var(--radius-l);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-medium);
+    padding: var(--space-l);
+    box-sizing: border-box;
+    transition: var(--transition-clean);
+}
+
+.auth-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color-light);
+    margin-bottom: var(--space-m);
+}
+
+.auth-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    border-radius: 0;
+    transition: var(--transition-clean);
+    justify-content: center;
+    box-shadow: none !important;
+}
+
+.auth-tab-btn:hover {
+    color: var(--text-primary);
+    background-color: transparent;
+    transform: none;
+}
+
+.auth-tab-btn.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form-footer {
+    text-align: center;
+    margin-top: var(--space-m);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.auth-form-footer a {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+.auth-form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* 3. Dental/Medical History Questionnaire Wizard */
+.medical-history-wizard {
+    text-align: left;
+    margin-top: var(--space-m);
+}
+
+.wizard-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 4px;
+    margin-top: var(--space-m);
+    margin-bottom: var(--space-s);
+}
+
+/* Questionnaire switch rows (Yes/No selection) */
+.switch-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.switch-label-col {
+    flex: 1;
+    padding-right: var(--space-s);
+}
+
+.switch-label-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.switch-label-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.switch-options-col {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+/* Custom premium-looking radio pill selector */
+.radio-pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    overflow: hidden;
+}
+
+.radio-pill-item {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: #ffffff;
+    color: var(--text-secondary);
+    transition: var(--transition-clean);
+    user-select: none;
+}
+
+.radio-pill-item:hover {
+    background-color: var(--border-color-light);
+}
+
+.radio-pill-item.active {
+    background-color: var(--color-accent);
+    color: #ffffff;
+    border-color: var(--color-accent);
+}
+
+/* Conditions list grid */
+.checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xs);
+    margin-bottom: var(--space-m);
+}
+
+@media (max-width: 480px) {
+    .checklist-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.checkbox-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    transition: var(--transition-clean);
+    user-select: none;
+}
+
+.checkbox-card:hover {
+    border-color: var(--color-accent);
+    background-color: rgba(2, 132, 199, 0.02);
+}
+
+.checkbox-card.checked {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+}
+
+.checkbox-card input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-check-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 2px solid var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-clean);
+}
+
+.checkbox-card.checked .checkbox-check-icon {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+}
+
+.checkbox-card.checked .checkbox-check-icon::after {
+    content: "✓";
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Patient health profile: read-only until Edit (2026-09-14)
+   The answers stay fully readable; only touching them does nothing.
+   ------------------------------------------------------------------------ */
+.medical-lock-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+}
+.medical-lock-head h3 { margin: 0; }
+
+/* The one way into editing, so it is coloured and easy to find (clinic
+   request, 2026-09-15): a solid pill in the patient portal's blue, darker on
+   hover. Disabled while the answers are still loading. */
+.medical-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 42px;
+    padding: 8px 20px;
+    border: 1px solid var(--color-accent);
+    border-radius: 999px;
+    background-color: var(--color-accent);
+    color: #ffffff;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent) 28%, transparent);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background-color var(--transition-clean),
+                color var(--transition-clean),
+                border-color var(--transition-clean),
+                transform var(--transition-clean);
+}
+
+.medical-edit-btn .icon { color: currentColor; }
+
+.medical-edit-btn:hover:not(:disabled) {
+    background-color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+    color: #ffffff;
+}
+
+.medical-edit-btn:active:not(:disabled) { transform: translateY(1px); }
+
+.medical-edit-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.medical-lock-note {
+    margin: 6px 0 var(--space-s);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.medical-fields {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+#form-patient-medical.is-locked .radio-pill-item,
+#form-patient-medical.is-locked .checkbox-card {
+    cursor: default;
+    pointer-events: none;
+}
+#form-patient-medical.is-locked .radio-pill-item:not(.active) {
+    color: var(--text-muted);
+}
+#form-patient-medical.is-locked .checkbox-card:not(.checked) {
+    opacity: 0.6;
+}
+#form-patient-medical.is-locked input:disabled {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-text-fill-color: var(--text-primary);
+    opacity: 1;
+}
+
+.medical-edit-actions {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-s);
+}
+.medical-edit-actions button { flex: 1; }
+.medical-edit-actions button[type="submit"] { flex: 2; }
+
+/* 4. Password Input Visibility Toggle & Forgot Links */
+.password-input-container {
+    position: relative;
+    width: 100%;
+    margin: var(--space-xs) 0 var(--space-s) 0;
+}
+
+.password-input-container input {
+    margin: 0 !important;
+    padding-right: 48px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none !important;
+    border: none !important;
+    padding: 4px !important;
+    margin: 0 !important;
+    /* A 44px target around a 20px eye icon; right edge moved in to match. */
+    min-width: 44px;
+    min-height: 44px;
+    right: 2px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+    transition: color var(--transition-clean), transform var(--transition-clean) !important;
+}
+
+.password-toggle-btn:hover {
+    color: var(--color-accent);
+    background: none !important;
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+/* Password Strength Box & Passkey Recommendation Generator */
+.password-strength-box {
+    background-color: var(--border-color-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    padding: 12px 14px;
+    margin-top: 6px;
+    margin-bottom: var(--space-s);
+}
+
+.strength-meter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.btn-suggest-passkey {
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+    border: 1px solid rgba(0, 102, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-clean);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: none !important;
+}
+
+.btn-suggest-passkey:hover {
+    background-color: var(--color-accent);
+    color: #ffffff;
+}
+
+.strength-bar-track {
+    width: 100%;
+    height: 5px;
+    background-color: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.strength-bar-fill {
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-danger);
+    /* Scaled, not resized: animating width re-lays-out the form on every
+       keystroke. js/auth.js sets scaleX(0..1). The track's overflow: hidden
+       and radius round the ends, so the fill carries no radius of its own —
+       a radius here would be squashed by the scale. */
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.passkey-criteria-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Each rule in the list is prefixed with a dash until it is satisfied, then
+   a tick. Drawing it here rather than in the text keeps the label itself
+   plain, so it reads correctly when copied or read aloud. */
+.crit-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+}
+
+.crit-item::before {
+    content: "–";
+    width: 11px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.crit-item.valid {
+    color: var(--color-success);
+}
+
+.crit-item.valid::before {
+    content: "✓";
+}
+
+.forgot-links-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: -8px;
+    margin-bottom: var(--space-s);
+}
+
+.forgot-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--transition-clean);
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+    color: var(--color-accent-hover);
+}
+
+.forgot-links-container .divider {
+    color: var(--text-muted);
+    margin: 0 6px;
+    opacity: 0.5;
+}
+
+/* 5. Dental Record Card & Clinical Warnings */
+.minor-info-section {
+    padding: var(--space-s);
+    background-color: var(--bg-canvas);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    margin-bottom: var(--space-s);
+}
+
+.clinical-alert-banner {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    padding: 12px 16px;
+    border-radius: var(--radius-s);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: var(--space-m);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    animation: pulseAlert 2s infinite ease-in-out;
+}
+
+@keyframes pulseAlert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+/* 6. Registration Medical History Specific Styles */
+.reg-mh-header {
+    text-align: left;
+    margin-bottom: var(--space-m);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.reg-mh-header h3 {
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.reg-mh-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}

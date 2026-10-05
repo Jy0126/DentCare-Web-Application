@@ -1,0 +1,426 @@
+/* ===========================================================================
+   DentCare — Base Styles & Design Tokens
+   ---------------------------------------------------------------------------
+   Every colour, size, radius and shadow used anywhere in the system is defined
+   once here. Change a value in :root and it updates the landing page, the
+   booking screens and all three dashboards at the same time.
+
+   Design intent: a plain, calm clinic website. Flat colours, hairline borders,
+   small radii, almost no shadow. Blue and teal are taken from the clinic logo.
+   Nothing decorative that a printer or a receptionist would not recognise.
+   =========================================================================== */
+
+/* Montserrat is linked from templates/partials/page-head.php, not @imported
+   here: an @import is only discovered after this file downloads. */
+
+:root {
+    /* ── Surfaces ─────────────────────────────────────────────────────── */
+    --bg-canvas: #f4f6f7;           /* page background behind cards */
+    --bg-card: #ffffff;
+    --bg-sidebar: #ffffff;
+    --bg-subtle: #f8fafb;           /* table stripes, inset panels */
+
+    /* ── Text ─────────────────────────────────────────────────────────── */
+    --text-primary: #1c1c1c;        /* headings and body copy */
+    --text-secondary: #4d5560;      /* supporting paragraphs */
+    --text-muted: #7b848f;          /* labels, captions, placeholders */
+    --text-light: #ffffff;
+
+    /* ── Brand ────────────────────────────────────────────────────────────
+       Sampled from dentcarelogo.png: the deep blue of the tooth outline and
+       the teal of the ribbon that wraps it. */
+    --color-accent: #17608f;        /* primary — buttons, links, active nav */
+    --color-accent-hover: #114a6f;
+    --color-accent-light: #e9f1f6;  /* pale wash for chips and highlights */
+    --brand-ink: #10425f;           /* dark bands: top bar, footer, hero tint */
+
+    --color-teal: #2aa79e;          /* secondary — friendly accents */
+    --color-teal-hover: #218a83;
+    --color-teal-light: #e6f5f3;
+
+    /* ── Status ───────────────────────────────────────────────────────── */
+    --color-success: #2e7d4f;
+    --color-success-light: #e6f2ea;
+    --color-warning: #b26a00;
+    --color-warning-light: #fdf1de;
+    --color-danger: #c0392b;
+    --color-danger-light: #fbeae8;
+
+    /* ── Spacing (8px baseline) ───────────────────────────────────────── */
+    --space-xs: 8px;
+    --space-s: 16px;
+    --space-m: 24px;
+    --space-l: 32px;
+    --space-xl: 48px;
+
+    /* ── Lines, corners, depth ────────────────────────────────────────────
+       Small radii and neutral (never blue-tinted) shadows. Depth comes from
+       a 1px border first; shadow is only used where something genuinely
+       floats above the page, such as a dropdown or a modal. */
+    --border-color: #dfe3e6;
+    --border-color-light: #eceff1;
+    --radius-s: 3px;
+    --radius-m: 4px;
+    --radius-l: 6px;
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-medium: 0 2px 6px rgba(0, 0, 0, 0.07);
+    --shadow-large: 0 6px 18px rgba(0, 0, 0, 0.10);
+
+    --transition-clean: 0.15s ease;
+
+    /* ── Type ─────────────────────────────────────────────────────────────
+       Headings in Montserrat; body copy in the reader's own system font, so
+       text renders the way every other application on their machine does. */
+    --font-heading: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                 'Helvetica Neue', Arial, sans-serif;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Resets
+   ------------------------------------------------------------------------ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: 15px;
+    background-color: var(--bg-canvas);
+    color: var(--text-secondary);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Typography
+   ------------------------------------------------------------------------ */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    margin-top: 0;
+    margin-bottom: var(--space-xs);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+h1 { font-size: 30px; }
+h2 { font-size: 23px; }
+h3 { font-size: 19px; }
+h4 { font-size: 16px; }
+
+a {
+    color: var(--color-accent);
+}
+
+
+/* ---------------------------------------------------------------------------
+   Form controls
+   ------------------------------------------------------------------------ */
+
+input, select, textarea {
+    font-family: var(--font-body);
+    padding: 10px 12px;
+    margin: var(--space-xs) 0 var(--space-s) 0;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    background-color: #ffffff;
+    transition: border-color var(--transition-clean);
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(23, 96, 143, 0.15);
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* Validation */
+input.input-error, select.input-error, textarea.input-error,
+.radio-pill.input-error, .signature-canvas-wrapper.input-error,
+.consent.input-error {
+    border-color: var(--color-danger) !important;
+    box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.18) !important;
+    background-color: #fdf6f5 !important;
+}
+
+/* A problem that belongs to a whole form rather than one field: a bill the
+   database cannot take a payment on, a save that was refused. */
+.form-alert {
+    margin: 12px 0 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-danger);
+    border-radius: 8px;
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+.form-alert.hidden { display: none; }
+
+/* A group with no single box to outline (js/app.js flagGroup). */
+.input-error-group.input-error {
+    outline: 2px solid var(--color-danger);
+    outline-offset: 4px;
+    border-radius: 10px;
+}
+
+/* Date of birth as Month / Day / Year (templates/partials/patient-registration-form.php).
+   One row at every width: the month gets the most room because it is a word,
+   the day the least. Each box keeps the ordinary input spacing, so the row
+   lines up with the Gender select beside it. */
+.dob-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.8fr) minmax(0, 1fr);
+    gap: 8px;
+}
+.dob-fields > select,
+.dob-fields > input {
+    min-width: 0;
+}
+/* Day and year hold at most four digits, so they give up some side padding:
+   their list arrow (the "pick from a list" cue) needs the room. */
+.dob-fields > input {
+    padding-left: 10px;
+    padding-right: 6px;
+}
+/* The month used to take a row of its own under 400px, because the form
+   column on a phone was 270px and left the day 61px. The column is the width
+   of the phone less 32px now (css/booking.css, 2026-09-30), so the three boxes
+   fit on one row at every width and the rule that split them is gone. */
+/* The message under the group sits with the boxes, not after their margin. */
+.dob-fields + .field-error-msg { margin-top: -4px; }
+
+.input-error-shake {
+    animation: fieldShake 0.4s ease-in-out;
+}
+
+@keyframes fieldShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: block;
+    text-align: left;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   Flat fills, square-ish corners, colour change on hover — no lifting,
+   glowing or scaling.
+   ------------------------------------------------------------------------ */
+
+button {
+    font-family: var(--font-body);
+    background-color: var(--color-accent);
+    color: #ffffff;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color var(--transition-clean),
+                border-color var(--transition-clean),
+                color var(--transition-clean);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+button:hover {
+    background-color: var(--color-accent-hover);
+}
+
+button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+button.btn-secondary {
+    background-color: #ffffff;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+button.btn-secondary:hover {
+    background-color: var(--bg-canvas);
+    border-color: var(--text-muted);
+}
+
+button.btn-danger {
+    background-color: var(--color-danger);
+}
+
+button.btn-danger:hover {
+    background-color: #a33024;
+}
+
+button.btn-success {
+    background-color: var(--color-success);
+}
+
+button.btn-success:hover {
+    background-color: #256540;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Scrollbars
+   ------------------------------------------------------------------------ */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+    background: #c8ced3;
+    border-radius: var(--radius-s);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Email address hint
+   ------------------
+   Sits under the registration email box and says, in words, why the address
+   will not work — and when it can tell, offers the correction as a button.
+   The button matters more than the message: a patient who is only told
+   "invalid" retypes the same typo, while one shown "Did you mean
+   maria@gmail.com?" takes the fix and moves on. */
+.email-hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 6px 0 4px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    text-align: left;
+    color: var(--color-danger);
+    background: #fdf6f5;
+    border: 1px solid rgba(192, 57, 43, 0.25);
+}
+
+/* A likely typo is not really an error — it is the app being helpful — so it
+   is amber rather than the red used for "this cannot work at all". */
+.email-hint--fix {
+    color: #8a5a00;
+    background: #fdf8ec;
+    border-color: rgba(180, 130, 20, 0.3);
+}
+
+.email-hint__fix {
+    flex-shrink: 0;
+    /* base.css sets every button to display:flex, so a bare text label sits
+       left inside its own pill unless it is told otherwise. */
+    justify-content: center;
+    padding: 4px 12px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.email-hint__fix:hover {
+    background: rgba(180, 130, 20, 0.12);
+}
+
+/* "Now go and look for it" panel
+   ------------------------------
+   Replaces the reset form after a request goes out. It carries what the email
+   itself cannot say: the reset template is locked on this Firebase project, so
+   the message arrives from noreply@<project>.firebaseapp.com in Firebase's own
+   wording. Naming that sender here, before she goes looking, is what stops a
+   cautious patient treating her own password reset as a phishing attempt. */
+.forgot-sent__lead {
+    margin: 0 0 var(--space-s);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: left;
+}
+
+.forgot-sent__row {
+    margin: 0 0 var(--space-s);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
+/* The sender address is long and unbreakable; without this it pushes the modal
+   sideways on a phone. */
+.forgot-sent__row strong {
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.forgot-sent__muted {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* The message written under a field that needs attention (js/app.js, the
+   "invalid" handler). Replaces the browser's own grey bubble. */
+.field-error-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 6px 0 10px;
+    color: var(--color-danger);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+.field-error-msg::before {
+    content: "!";
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background-color: var(--color-danger);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+}

@@ -1,0 +1,898 @@
+/* ===========================================================================
+   DentCare — Today's queue, walk-in intake, and the backup panel
+   ---------------------------------------------------------------------------
+   Added 2026-08-29 with the walk-in and disaster-recovery modules.
+
+   Prefixes: queue-, walkin-, backup-, restore-. All checked against every
+   other stylesheet before being written — every sheet loads on every page, so
+   a class name is global whether or not it was meant to be.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Walk-in banner on the registration form
+   --------------------------------------------------------------------------- */
+
+.walkin-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px var(--space-s);
+    margin-bottom: var(--space-s);
+    background-color: var(--color-teal-light);
+    border: 1px solid color-mix(in srgb, var(--color-teal) 30%, transparent);
+    border-radius: var(--radius-m);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.walkin-banner .icon {
+    flex-shrink: 0;
+    color: var(--color-teal-hover);
+    margin-top: 1px;
+}
+
+.walkin-banner strong { color: var(--text-primary); }
+
+/* ---------------------------------------------------------------------------
+   The queue
+   --------------------------------------------------------------------------- */
+
+.queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: var(--space-s);
+}
+
+.queue-empty {
+    padding: var(--space-m);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    background-color: var(--bg-subtle);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-m);
+    margin: var(--space-s) 0 0;
+}
+
+.queue-card {
+    display: flex;
+    align-items: center;
+    /* A row in the chair carries a badge and two buttons (2026-09-30). When
+       they do not fit beside the name they drop to their own line, right
+       aligned, instead of squeezing the name into a narrow column. */
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px var(--space-s);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+}
+
+/* Whoever is with the doctor right now. One card is highlighted at a time,
+   so a glance at the screen answers "who is in the chair". */
+.queue-card--active {
+    border-color: var(--color-teal);
+    background-color: var(--color-teal-light);
+}
+
+.queue-card__pos {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    color: var(--text-light);
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.queue-card--active .queue-card__pos { background-color: var(--color-teal); }
+
+.queue-card__body {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.queue-card__name {
+    display: flex;
+    align-items: center;
+    /* The tag drops under the name when the row is tight, instead of the name
+       and the tag each breaking onto two lines (2026-09-30: rows carry two
+       buttons now). */
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.queue-card__svc,
+.queue-card__meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.queue-card__meta { color: var(--text-muted); }
+
+.queue-card__actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.queue-tag {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* Walk-in, waiting for a gap. Amber: present, but not holding a slot. */
+.queue-tag--walkin {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+/* A booked patient. Blue is the accent used for scheduled things everywhere
+   else in the app, so the tag needs no reading to be understood. */
+.queue-tag--appointment {
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+}
+
+/* Whoever is seen next, a booking or a walk-in. Green, and the only queue tag
+   with a ring, because it is the one thing on this screen that changes what
+   the person at the desk does in the next minute. */
+.queue-tag--next {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+    box-shadow: 0 0 0 1px var(--color-success);
+}
+
+/* Record Visit is the row's one primary action (dentist only). It keeps the
+   ordinary filled button; this only stops the label wrapping in a tight row. */
+.queue-card__record { white-space: nowrap; }
+
+/* Seen today: the visits already completed (2026-09-30). The same quiet row
+   the old "Expected today" list used, which this list replaced. */
+.queue-seen {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: var(--space-s);
+}
+
+.queue-seen__row {
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    grid-template-areas: "time name action" "time svc action";
+    gap: 2px 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--radius-m);
+}
+
+.queue-seen__time {
+    grid-area: time;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.queue-seen__name {
+    grid-area: name;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.queue-seen__svc {
+    grid-area: svc;
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
+.queue-seen__row > .btn-secondary { grid-area: action; }
+
+/* Today's requests nobody has approved yet: a sentence and one button. */
+.queue-pending__notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    margin-top: var(--space-s);
+    padding: 10px 12px;
+    border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
+    background-color: var(--color-warning-light);
+    border-radius: var(--radius-m);
+}
+
+.queue-pending__text {
+    flex: 1 1 180px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+    .queue-card__actions { width: 100%; }
+}
+
+/* ---------------------------------------------------------------------------
+   Backup & recovery panel
+   --------------------------------------------------------------------------- */
+
+/* ── Laid out as three steps and an emergency (clinic request, 2026-09-14) ──
+   The doctor is not technical. One column, a number per weekly job, one big
+   button for the job that matters most, and the restore folded away at the
+   bottom. See the header of templates/tab_clinic_backup.php. */
+
+.backup-lead {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 760px;
+    margin: 0 0 var(--space-s);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.backup-lead .icon {
+    flex-shrink: 0;
+    color: var(--color-accent);
+}
+
+/* One big card, the rest beside it (clinic request, 2026-09-16). The weekly
+   job is the one that also prints the record cards, so it is the large card on
+   the left; the year's income and the emergency restore sit in a column next to
+   it. Below 900px they stack, biggest job first.
+
+   Two boxes, not one grid counting rows. The first shape here gave the big card
+   `grid-row: 1 / span 3` for the three cards beside it; when "Download full
+   backup" was removed on 2026-09-16 there were two, and the emergency card fell
+   underneath the big one. Wrapping the side cards means neither rule has to
+   know how many there are. */
+.backup-steps {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 12px;
+    max-width: 1080px;
+}
+
+.backup-steps__side {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    min-width: 0;
+}
+
+/* The big card fills the height of the column beside it, and stacks its own
+   contents rather than sitting text-then-button in a row. */
+.backup-steps > .backup-step--main {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: 18px;
+    padding: 26px 24px;
+}
+
+.backup-step--main .backup-step__title { font-size: 19px; }
+.backup-step--main .backup-step__hint { font-size: 14px; }
+.backup-step--main .backup-big-btn { width: 100%; min-height: 60px; font-size: 16.5px; }
+
+.backup-steps > .card,
+.backup-steps__side > .card { margin: 0; }
+
+/* In the narrow right-hand column there is no room for text beside a button,
+   so those cards stack: heading, one line, then the button at full width. */
+.backup-steps__side .backup-step {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+}
+
+.backup-steps__side .backup-step-btn { width: 100%; }
+.backup-steps__side .fin-year__row { justify-content: stretch; }
+.backup-steps__side .fin-year__row .picker-sort { flex: 1 1 auto; }
+
+.backup-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px 20px;
+    padding: 18px 20px;
+    border-radius: 14px;
+}
+
+.backup-step__head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.backup-step__num {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.backup-step--main .backup-step__num {
+    background-color: var(--color-accent);
+    color: #ffffff;
+}
+
+.backup-step__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.backup-step__hint {
+    margin: 2px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+/* HMO to collect (Task 25): one row per bill, the amount and button at the end. */
+.hmo-collect__total { margin: 0 0 8px; font-weight: 700; }
+.hmo-collect__rows { list-style: none; margin: 0; padding: 0; }
+.hmo-collect__row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.hmo-collect__act { display: flex; align-items: center; gap: 10px; }
+
+/* The one button that matters most on this screen. */
+.backup-big-btn {
+    min-height: 52px;
+    padding: 0 26px;
+    border-radius: 10px;
+    font-size: 15.5px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.backup-step-btn {
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.backup-step-btn:hover {
+    background-color: var(--bg-subtle);
+    border-color: var(--text-muted);
+}
+
+.backup-step-btn .icon { color: var(--color-accent); }
+
+/* Status lines run the full width under their step. */
+.backup-step > .backup-status,
+.backup-step > .ph-status,
+.backup-step > .fin-year__status {
+    grid-column: 1 / -1;
+    margin-top: 0;
+}
+
+.backup-step > .ph-status:empty,
+.backup-step > .fin-year__status:empty { display: none; }
+
+.fin-year--step .fin-year__row {
+    margin: 0;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+}
+
+/* A year is four digits; the shared picker's 190px minimum is for names. */
+.fin-year--step .picker-sort select {
+    min-width: 96px;
+    min-height: 44px;
+    border-radius: 10px;
+}
+
+/* ── The emergency, folded ─────────────────────────────────────────────── */
+
+.backup-emergency {
+    margin-top: 0;
+    padding: 0;
+    border-radius: 14px;
+    border-color: color-mix(in srgb, var(--color-warning) 30%, var(--border-color));
+}
+
+.backup-emergency__summary {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 60px;
+    padding: 14px 20px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.backup-emergency__summary::-webkit-details-marker { display: none; }
+
+/* A chevron that turns when the panel opens. */
+.backup-emergency__summary::after {
+    content: "";
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    margin-left: auto;
+    border-right: 2px solid var(--text-muted);
+    border-bottom: 2px solid var(--text-muted);
+    transform: rotate(45deg);
+    transition: transform var(--transition-clean);
+}
+
+.backup-emergency[open] .backup-emergency__summary::after {
+    transform: rotate(-135deg);
+}
+
+.backup-emergency__summary:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 14px;
+}
+
+.backup-emergency__icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.backup-emergency__text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.backup-emergency__text strong {
+    font-size: 15px;
+    color: var(--text-primary);
+}
+
+.backup-emergency__body {
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.restore-how {
+    margin: 0 0 14px;
+    padding-left: 20px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+    .backup-steps { grid-template-columns: minmax(0, 1fr); max-width: 760px; }
+}
+
+@media (max-width: 700px) {
+    .backup-step { grid-template-columns: 1fr; }
+    .backup-big-btn,
+    .backup-step-btn { width: 100%; }
+    .fin-year--step .fin-year__row { justify-content: stretch; flex-wrap: wrap; }
+    .fin-year--step .fin-year__row .backup-step-btn { flex: 1 1 100%; }
+}
+
+.backup-status,
+.restore-status {
+    margin-top: var(--space-s);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.backup-status:empty,
+.restore-status:empty { margin-top: 0; }
+
+/* ── Restore panel, rebuilt 2026-09-14 ─────────────────────────────────── */
+
+.restore-pickers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: var(--space-s);
+}
+
+/* The label IS the button; the real file input inside it is visually hidden
+   but still focusable, so the keyboard reaches it. */
+.restore-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    transition: background-color var(--transition-clean), border-color var(--transition-clean);
+}
+
+.restore-picker:hover {
+    background-color: var(--bg-subtle);
+    border-color: color-mix(in srgb, var(--color-accent) 35%, var(--border-color));
+}
+
+/* base.css makes every input full-width; a radio or checkbox must not be. */
+.restore-choice__item input,
+.restore-replace-row input {
+    width: auto;
+    flex: 0 0 auto;
+    margin: 3px 0 0;
+}
+
+.restore-picker:focus-within {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.restore-choice:empty { display: none; }
+
+.restore-choice__list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 6px 0 var(--space-s);
+}
+
+.restore-choice__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: var(--bg-card);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.restore-choice__item:has(input:checked) {
+    border-color: color-mix(in srgb, var(--color-accent) 45%, var(--border-color));
+    background-color: var(--color-accent-light);
+}
+
+.restore-choice__meta {
+    display: block;
+    color: var(--text-muted);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.restore-mode {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin: var(--space-s) 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background-color: var(--bg-subtle);
+    font-size: 13px;
+}
+
+.restore-mode:empty { display: none; }
+
+.restore-mode__state {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.restore-mode__state--open {
+    color: var(--color-warning);
+}
+
+.restore-mode__meta {
+    color: var(--text-muted);
+    flex: 1 1 200px;
+}
+
+.restore-replace-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 var(--space-s);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.restore-replace-row .field-hint {
+    display: block;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+.backup-progress { color: var(--text-muted); margin: 0 0 6px; }
+.backup-ok       { color: var(--color-success); margin: 0 0 6px; }
+.backup-warn     { color: var(--color-warning); margin: 0 0 6px; }
+
+.backup-warn-inline {
+    color: var(--color-warning);
+    font-size: 12px;
+}
+
+.backup-note {
+    margin: 8px 0 0;
+    padding: 8px 10px;
+    background-color: var(--bg-subtle);
+    border-radius: var(--radius-s);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.backup-list {
+    margin: 4px 0 8px;
+    padding-left: 20px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
+
+/* An archived x-ray: the record is still on file, the image is on the drive. */
+.xray-card--archived { opacity: 0.72; }
+
+.xray-archived-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 110px;
+    padding: 8px;
+    background-color: var(--bg-subtle);
+    color: var(--text-muted);
+    font-size: 11.5px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   Walk-in chooser — the front-desk tablet
+   ───────────────────────────────────────────────────────────── */
+
+.walkin-lead {
+    margin: 0 0 18px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.walkin-options {
+    display: grid;
+    gap: 14px;
+}
+
+/* Deliberately large. This is read by somebody standing at a desk holding a
+   tablet, often an older patient, not by someone sitting at a laptop. */
+.walkin-option {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    grid-template-rows: auto auto;
+    gap: 2px 16px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background-color: #ffffff;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color var(--transition-clean),
+                box-shadow var(--transition-clean),
+                transform 0.15s ease;
+}
+
+.walkin-option:hover,
+.walkin-option:focus-visible {
+    border-color: var(--color-accent);
+    box-shadow: 0 6px 18px rgba(16, 66, 95, 0.12);
+    transform: translateY(-2px);
+}
+
+.walkin-option__mark {
+    grid-row: 1 / span 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+}
+
+.walkin-option__mark .icon { width: 21px; height: 21px; }
+
+.walkin-option__title {
+    color: var(--text-primary);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.walkin-option__text {
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    line-height: 1.55;
+}
+
+/* The two ways out of "you are not at the clinic": book properly, or close.
+   Never a dead end — see showWalkInTooFar() in js/queue.js. */
+.walkin-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.walkin-actions .btn,
+.walkin-actions .btn-secondary {
+    width: 100%;
+    min-height: 52px;
+    font-size: 15.5px;
+}
+
+@media (min-width: 560px) {
+    .walkin-actions { grid-template-columns: 1fr auto; align-items: center; }
+}
+
+/* No-location panel: Try again across the top, the two ways out under it. */
+.walkin-actions--three > :first-child { grid-column: 1 / -1; }
+
+/* The hand-back message. Calm, not an error: being a returning patient is the
+   good case, and the tablet is simply not where that lookup can happen. */
+.walkin-handback {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding: 18px;
+    border-radius: 12px;
+    background-color: var(--color-accent-light);
+    color: var(--text-primary);
+    font-size: 14.5px;
+    line-height: 1.6;
+}
+
+.walkin-handback .icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--color-accent);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Returning-walk-in lookup — staff side, in the queue tab
+   ───────────────────────────────────────────────────────────── */
+
+.queue-divider {
+    margin: 22px 0 18px;
+    border: 0;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.walkin-lookup {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.walkin-lookup label {
+    display: grid;
+    gap: 4px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.walkin-lookup input {
+    padding: 9px 11px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-s);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.walkin-lookup input:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -1px;
+}
+
+.walkin-hit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-m);
+    background-color: var(--bg-subtle);
+}
+
+.walkin-hit + .walkin-hit { margin-top: 8px; }
+
+/* The row the arrow keys are on; Enter adds that patient. A filled surface,
+   not a bar or a glow (docs/design-references: selected = filled). */
+.walkin-hit.is-active {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-light);
+}
+
+/* "3 more. Keep typing to narrow it down." */
+.walkin-lookup__more {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.walkin-lookup__register { margin-top: 8px; }
+
+.walkin-hit__name {
+    flex: 1 1 auto;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.walkin-hit__meta {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .walkin-option { transition: none; }
+    .walkin-option:hover,
+    .walkin-option:focus-visible { transform: none; }
+}
